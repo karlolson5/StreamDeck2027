@@ -8,18 +8,27 @@ import constants as c
 from StreamDeck.ImageHelpers import PILHelper
 from controller.stream_deck_button import ButtonConfig, StreamDeckButton
 from PIL import Image, ImageOps
+from typing import Optional
 
 class StreamDeckController:
-    def __init__(self, deck: StreamDeck, button_suppliers: dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]):
-        self._deck: StreamDeck = deck
-        self.num_rows, self.num_cols = self._deck.key_layout
-        self.num_buttons = self._deck.key_count
-        self._default_background = self.generate_key_images_from_deck_sized_image(c.BACKGROUND_IMAGE)
+    def __init__(self, deck: Optional[StreamDeck] = None, button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]] = None):
+        self._init(deck, button_suppliers)
+
+    def _init(self, deck: Optional[StreamDeck], button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]]):
+        button_suppliers = button_suppliers if button_suppliers is not None else {}
+        self._deck: StreamDeck = deck if deck else None
+        self.num_rows, self.num_cols = self._deck.key_layout if self._deck else (0,0)
+        self.num_buttons = self._deck.key_count if self._deck else 0
+        self._default_background = self.generate_key_images_from_deck_sized_image(c.BACKGROUND_IMAGE) if self._deck else {}
         self.buttons: dict[int, StreamDeckButton] = {}
-        for index, suppliers in button_suppliers:
+        for index, suppliers in button_suppliers.items():
             self.buttons[index] = StreamDeckButton(self, index, str(index), suppliers[0], suppliers[1])
         self._remote_connected = False
         self.table: NetworkTable = c.NT_INSTANCE.getTable("StreamDeck")
+
+    def re_init(self, deck: Optional[StreamDeck], button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]]):
+        self.close()
+        self._init(deck, button_suppliers)
 
     def __enter__(self):
         self.open()
@@ -119,6 +128,12 @@ class StreamDeckController:
     def render_default_background(self):
         self.render_multi_key_image(self._default_background)
 
+    def get_button_by_key(self, key: str) -> Optional[StreamDeckButton]:
+        for b in self.buttons.values():
+            if b.key == key:
+                return b
+        return None
+
     def update(self):
         self._remote_connected = c.NT_INSTANCE.isConnected()
         
@@ -128,4 +143,8 @@ class StreamDeckController:
 
         for b in self.buttons.values():
             b.update()
+
+    def on_key_change(self, _, key: int, selected: bool):
+        b = self.buttons[key]
+        b.pressed() if selected else b.released()
             

@@ -21,6 +21,10 @@ class StreamDeckConfigSubscriber():
             self._make_intial_topics()
             self._update_button_topics()
             self._build_button_callables()
+
+    def re_init(self):
+        self._init_complete = False
+        self._ensure_init()
     
     def _make_intial_topics(self):
         if self._init_complete:

@@ -49,6 +49,7 @@ class StreamDeckButton:
         self.config: ButtonConfig = self.config_supplier() 
         self.active_supplier: Callable[[], bool] = active_supplier
         self.active: bool = self.active_supplier()
+        self.publish_list: list[bool] = []
 
     def update(self):
         new_active = self.active_supplier()
@@ -59,6 +60,15 @@ class StreamDeckButton:
         self.config = new_config
         self.render_key()
         return
+
+    def pressed(self):
+        self.publish_list.append(True)
+    
+    def released(self):
+        self.publish_list.append(False)
+
+    def get_publish_list(self):
+        return self.publish_list
 
     def render_key_image(self, image: bytes):
         self.controller._deck.set_key_image(self.index, image)

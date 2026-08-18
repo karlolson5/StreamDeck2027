@@ -14,10 +14,15 @@ class StreamDeckPublisher(OutputPublisher):
         self._heartbeat_publisher: ntcore.IntegerPublisher
         self._start_time_ms = u.time_ms()
         self._button_publishers: dict[str, Optional[ntcore.BooleanPublisher]] = []
+        self._ensure_init()
 
     def _ensure_init(self):
         self._make_intial_topics()
         self._update_button_topics()
+
+    def re_init(self):
+        self._init_complete = False
+        self._ensure_init()
 
     def _make_intial_topics(self):
         if self._init_complete:
@@ -35,6 +40,17 @@ class StreamDeckPublisher(OutputPublisher):
             if key not in [b.key for b in self._controller.buttons.values()]:
                 self._button_publishers[key].close()
                 self._button_publishers.pop(key)
+
+    def _publish_buttons(self):
+        for key in self._button_publishers.keys():
+            to_publish = self._controller.get_button_by_key(key).get_publish_list()
+            for val in to_pulish:
+                self._button_publishers[key].set(val)
+
+
+    def update(self):
+        self._update_button_topics()
+        self._publish_buttons()
                 
     @override
     def send_connected(self, connected: bool):
