@@ -1,16 +1,18 @@
 from collections.abc import Callable
 
 import tkinter as tk
-from tkinter import colorchooser, messagebox
+import io
 import constants as c
+import PIL
+from PIL import Image
 
 class SimStreamDeck(CustomizableGridApp):
     def __init__(self, key_layout: tuple[int, int], tk_root: tk.Tk):
-        self._init()
+        self._init(key_layout, tk_root)
 
     def _init(self, key_layout: tuple[int, int], tk_root: tk.Tk):
-        self._key_layout: tuple[int, int] = (8, 4)
-        self._key_count: int = self.key_layout[0] * self.key_layout[1]
+        self.KEY_LAYOUT: tuple[int, int] = key_layout
+        self.KEY_COUNT: int = self.KEY_LAYOUT[0] * self.KEY_LAYOUT[1]
         self._open: bool = False
         self._key_callbacks: Callable[[int, bool],[]] = lambda key, selected: None
         self._brightness: int = 100
@@ -19,7 +21,7 @@ class SimStreamDeck(CustomizableGridApp):
         self.KEY_IMAGE_FORMAT = c.KEY_IMAGE_FORMAT
         self.KEY_FLIP = c.KEY_FLIP
         self.KEY_ROTATION = c.KEY_ROTATION
-        super().__init__(self, tk_root, self._key_layout, self._key_image_format()["size"], self._key_callbacks, "Simulated Stream Deck")
+        super().__init__(tk_root, self.KEY_LAYOUT, self.key_image_format()["size"], self._key_callbacks, "Simulated Stream Deck")
 
     def deck_type(self):
         return "SimStreamDeck"
@@ -31,10 +33,10 @@ class SimStreamDeck(CustomizableGridApp):
         return "SimStreamDeckFW1.0.0"
 
     def key_layout(self) -> tuple[int, int]:
-        return self._key_layout
+        return self.KEY_LAYOUT
 
     def key_count(self) -> int:
-        return self._key_count
+        return self.KEY_COUNT
 
     def key_image_format(self) -> dict[str, tuple[int, int]]:
         return {
@@ -44,13 +46,15 @@ class SimStreamDeck(CustomizableGridApp):
             'rotation': self.KEY_ROTATION,
         }
 
+    def set_key_image(self, index: int, image: bytes):
+        set_button_image(self, index, image)
+
     def open(self):
         self._open = True
         self.start_gui()
 
     def close(self):
         self._open = False
-        self._init()
 
     def is_open(self) -> bool:
         return self._open
@@ -60,6 +64,9 @@ class SimStreamDeck(CustomizableGridApp):
 
     def set_key_callback(self, callback: Callable[[int, bool],[]]):
         self._key_callbacks = callback
+
+    def is_visual(self) -> bool:
+        return True
 
     def start_gui(self):
         pass
@@ -99,8 +106,8 @@ class CustomizableGridApp:
                     fg="white",
                 )
 
-                btn.bind("<ButtonPress-1>",lambda event, idx=index: key_callbacks(idx, True))
-                btn.bind("<ButtonRelease-1>",lambda event, idx=index: key_callbacks(idx, False))
+                btn.bind("<ButtonPress-1>",lambda event, idx=index: key_callbacks(None, idx, True))
+                btn.bind("<ButtonRelease-1>",lambda event, idx=index: key_callbacks(None, idx, False))
 
                 # Map standard layout placement metrics
                 btn.grid(row=r, column=c, padx=4, pady=4, sticky="nsew")
@@ -128,3 +135,13 @@ class CustomizableGridApp:
         """Applies configuration string to the targeted element."""
         if index in self.buttons:
             self.buttons[index].config(fg=color)
+
+    def set_button_image(self, index: int, image: bytes):
+        # 1. Load the image (Supports PNG and GIF natively)
+        img = PIL.ImageTk.PhotoImage(Image.open(io.BytesIO(image)))
+
+        # 2. Create the button and pass the image
+        self.buttons[index].config(image=img)
+
+        # 3. CRITICAL: Save a reference to prevent garbage collection
+        self.buttons[index].image = img
