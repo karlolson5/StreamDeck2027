@@ -17,12 +17,19 @@ class StreamDeckConfigSubscriber():
         self._init_complete = False
         self._ensure_init()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.cleanup()
+
     def _ensure_init(self):
             self._make_intial_topics()
             self._update_button_topics()
             self._build_button_callables()
 
     def re_init(self):
+        self.cleanup()
         self._init_complete = False
         self._ensure_init()
     
@@ -50,4 +57,15 @@ class StreamDeckConfigSubscriber():
     def get_button_config_callables(self) -> dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]:
          self._ensure_init()
          return self._button_config_callables
+
+    def cleanup(self):
+        if not self._init_complete:
+            return
+        try:
+            for appearance_sub, active_sub in self._button_config_sources.values():
+                appearance_sub.close()
+                active_sub.close()
+            self._button_config_sources.clear()
+        except Exception as e:
+            print(f"Error during StreamDeckConfigSubscriber cleanup: {e}")
 

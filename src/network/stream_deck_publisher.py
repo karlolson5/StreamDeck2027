@@ -16,11 +16,18 @@ class StreamDeckPublisher(OutputPublisher):
         self._button_publishers: dict[str, Optional[ntcore.BooleanPublisher]] = {}
         self._ensure_init()
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_):
+        self.cleanup()
+
     def _ensure_init(self):
         self._make_intial_topics()
         self._update_button_topics()
 
     def re_init(self):
+        self.cleanup()
         self._init_complete = False
         self._ensure_init()
 

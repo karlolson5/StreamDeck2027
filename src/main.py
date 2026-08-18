@@ -22,68 +22,63 @@ def exit_gracefully(*_):
 
 def main(running: Callable[[], bool]):
     controller = StreamDeckController()
-    sub = StreamDeckConfigSubscriber(controller)
-    pub = StreamDeckPublisher(controller)
-    try:
-        sent_search_message = False
-        while running():
-            if not sent_search_message:
-                print("Searching for Stream Deck...")
-                sent_search_message = True
-            
-            decks: list[StreamDeck.StreamDeck] = DeviceManager().enumerate()
-
-            if not decks:
-                pub.send_connected(False)
-                time.sleep(1)
-                continue
-
-            if len(decks) > 1:
-                print("Error: Multiple Stream Decks Detected. Disconnect one of them!")
-                time.sleep(2)
-                continue
-
-            deck = decks[0]
-            if not deck.is_visual():
-                continue
-
-            print(f"Creating controller for {deck.deck_type()}")
-            controller.re_init(deck, sub.get_button_config_callables())
-            sub.re_init()
-            pub.re_init()
-
-            with controller:
-                pub.send_connected(True)
-                last_time = time.time()
-
-                while running() and controller.is_open():
-                    try:
-                        controller.update()
-                    except TransportError:
-                        pass
-                        
-                    pub.send_heartbeat()
-                    pub.update()
-
-                    new_time = time.time()
-                    d_time = new_time - last_time
-                    if d_time < c.MIN_LOOP_TIME_S:
-                        time.sleep(c.MIN_LOOP_TIME_S - d_time)
-                    last_time = new_time
-            
-            pub.send_connected(False)
-
-    finally:
-        # Clean up resources to prevent connection leaks
-        print("Cleaning up NetworkTables resources...")
-
-        
-        # Stop NetworkTables clients
-        print("Stopping NetworkTables clients...")
+    with StreamDeckConfigSubscriber(controller) as sub, StreamDeckPublisher(controller) as pub:
         try:
-            c.NT_INSTANCE.stopClient()
-        except Exception as e:
-            print(f"Error stopping NT instance: {e}")
+            sent_search_message = False
+            while running():
+                if not sent_search_message:
+                    print("Searching for Stream Deck...")
+                    sent_search_message = True
+                
+                decks: list[StreamDeck.StreamDeck] = DeviceManager().enumerate()
+
+                if not decks:
+                    pub.send_connected(False)
+                    time.sleep(1)
+                    continue
+
+                if len(decks) > 1:
+                    print("Error: Multiple Stream Decks Detected. Disconnect one of them!")
+                    time.sleep(2)
+                    continue
+
+                deck = decks[0]
+                if not deck.is_visual():
+                    continue
+
+                print(f"Creating controller for {deck.deck_type()}")
+                controller.re_init(deck, sub.get_button_config_callables())
+                sub.re_init()
+                pub.re_init()
+
+                with controller:
+                    pub.send_connected(True)
+                    last_time = time.time()
+
+                    while running() and controller.is_open():
+                        try:
+                            controller.update()
+                        except TransportError:
+                            pass
+
+                        pub.send_heartbeat()
+                        pub.update()
+
+                        new_time = time.time()
+                        d_time = new_time - last_time
+                        if d_time < c.MIN_LOOP_TIME_S:
+                            time.sleep(c.MIN_LOOP_TIME_S - d_time)
+                        last_time = new_time
+                
+                pub.send_connected(False)
+
+        finally:
+            # Stop NetworkTables clients
+            print("Stopping NetworkTables clients...")
+            try:
+                c.NT_INSTANCE.stopClient()
+            except Exception as e:
+                print(f"Error stopping NT instance: {e}")
         
         
         print("Cleanup complete.")
