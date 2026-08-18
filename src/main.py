@@ -2,11 +2,14 @@ from collections.abc import Callable
 
 import constants as c
 import ctypes
+import time
+import signal
 import util.utilities as u
 from StreamDeck.DeviceManager import DeviceManager
 from StreamDeck.Devices import StreamDeck
-from network.base.stream_deck_config_subscriber import StreamDeckConfigSubscriber
-from network.base.stream_deck_publisher import StreamDeckPublisher
+from StreamDeck.Transport.Transport import TransportError
+from network.stream_deck_config_subscriber import StreamDeckConfigSubscriber
+from network.stream_deck_publisher import StreamDeckPublisher
 from controller.stream_deck_controller import StreamDeckController
 
 ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
@@ -56,6 +59,7 @@ def main(running: Callable[[], bool]):
                 while running() and controller.is_open():
                     # update config sub, this is part of controller.update() now I think
                     pub.send_heartbeat()
+                    pub.update()
                     try:
                         controller.update()
                     except TransportError:
@@ -63,8 +67,8 @@ def main(running: Callable[[], bool]):
                     
                     new_time = time.time()
                     d_time = new_time - last_time
-                    if d_time < MIN_LOOP_TIME:
-                        time.sleep(MIN_LOOP_TIME - d_time)
+                    if d_time < c.MIN_LOOP_TIME_S:
+                        time.sleep(c.MIN_LOOP_TIME_S - d_time)
                     last_time = new_time
             
             pub.send_connected(False)

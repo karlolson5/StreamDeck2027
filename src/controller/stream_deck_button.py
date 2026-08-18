@@ -25,18 +25,18 @@ class ButtonConfig:
         self.inactive_text = inactive_text if inactive_text is not None else ""
         self.cache: int = 0
 
-    def hash(self):
+    def __hash__(self):
         return hash(
-            self.active_background+"$&$"+
-            self.inactive_background+"$&$"+
-            self.active_foreground+"$&$"+
-            self.inactive_foreground+"$&$"+
-            self.active_text+"$&$"+
-            self.inactive_text
+            self.active_background.__hash__()+
+            self.inactive_background.__hash__()+
+            self.active_foreground.__hash__()+
+            self.inactive_foreground.__hash__()+
+            self.active_text.__hash__()+
+            self.inactive_text.__hash__()
         )
 
     def __eq__(self, other):
-        return self.hash() == other.hash()
+        return self.__hash__() == other.__hash__()
 
 class StreamDeckButton:
     def __init__(self, controller: StreamDeckController, index: int, key: str, config_supplier: Callable[[], ButtonConfig], active_supplier: Callable[[], bool]):
@@ -58,7 +58,7 @@ class StreamDeckButton:
             return
         self.active = new_active
         self.config = new_config
-        self.render_key()
+        self.render_key_image(self.render_key())
         return
 
     def pressed(self):
@@ -82,9 +82,10 @@ class StreamDeckButton:
             bg = self.config.inactive_background
             fg = self.config.inactive_foreground
             tx = self.config.inactive_text
+
         cache_key = (bg, fg, tx)
-        if cache_key in self.controller._icon_cache:
-            return PILHelper.to_native_key_format(self.controller._deck, self._icon_cache[cache_key])
+        if cache_key in self.controller.icon_cache:
+            return PILHelper.to_native_key_format(self.controller._deck, self.controller.icon_cache[cache_key])
         
         image = PILHelper.create_key_image(self._deck, background=bg)
 
@@ -102,5 +103,5 @@ class StreamDeckButton:
 
             draw.multiline_text((image.width/2, image.height/2), tx, fill=fg, font=font, anchor="mm", align="center")
 
-        self._icon_cache[cache_key] = image
-        return PILHelper.to_native_key_formt(self.controller._deck, image)
+        self.controller.icon_cache[cache_key] = image
+        return PILHelper.to_native_key_format(self.controller._deck, image)

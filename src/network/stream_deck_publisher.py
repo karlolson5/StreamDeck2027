@@ -13,7 +13,7 @@ class StreamDeckPublisher(OutputPublisher):
         self._connected_publisher: ntcore.BooleanPublisher
         self._heartbeat_publisher: ntcore.IntegerPublisher
         self._start_time_ms = u.time_ms()
-        self._button_publishers: dict[str, Optional[ntcore.BooleanPublisher]] = []
+        self._button_publishers: dict[str, Optional[ntcore.BooleanPublisher]] = {}
         self._ensure_init()
 
     def _ensure_init(self):
@@ -29,7 +29,7 @@ class StreamDeckPublisher(OutputPublisher):
             return
         tbl = self._controller.table
         self._connected_publisher = tbl.getBooleanTopic("Connected").publish()
-        self._heartbeat_publisher = tbl.getBooleanTopic("Heartbeat").publish()
+        self._heartbeat_publisher = tbl.getIntegerTopic("Heartbeat").publish()
         for button in self._controller.buttons.values():
             key = button.key
             self._button_publishers[key] = tbl.getBooleanTopic(key).publish(c.PRESSED_PUBLISH_OPTIONS) if key else None
@@ -44,12 +44,12 @@ class StreamDeckPublisher(OutputPublisher):
     def _publish_buttons(self):
         for key in self._button_publishers.keys():
             to_publish = self._controller.get_button_by_key(key).get_publish_list()
-            for val in to_pulish:
+            for val in to_publish:
                 self._button_publishers[key].set(val)
 
 
     def update(self):
-        self._update_button_topics()
+        self._ensure_init()
         self._publish_buttons()
                 
     @override
@@ -61,15 +61,6 @@ class StreamDeckPublisher(OutputPublisher):
     def send_heartbeat(self):
         self._ensure_init()
         self._heartbeat_publisher.set(u.time_ms() - self._start_time_ms)
-
-    @override
-    def send_data(self, index: int, selected: bool):
-        if index not in self._controller.buttons.keys():
-            return
-        
-        self._ensure_init()
-        if self._button_publishers[index]:
-            self._button_publishers[index].set(selected)
 
     def cleanup(self):
         if not self._init_complete:

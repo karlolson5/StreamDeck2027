@@ -8,6 +8,3 @@ class OutputPublisher(ABC):
     @abstractmethod
     def send_heartbeat(self):
         pass
-    @abstractmethod
-    def send_data(self, *args):
-        pass

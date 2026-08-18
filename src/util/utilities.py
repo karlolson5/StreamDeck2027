@@ -10,7 +10,7 @@ def resource_path(filename):
     return filename
 
 def asset_path(*paths):
-    resource_path(os.path.join(c.DEFAULT_ASSETS_PATH, *paths))
+    return resource_path(os.path.join(c.DEFAULT_ASSETS_PATH, *paths))
 
 def time_ms() -> int:
     return time.time_ns() // 1_000_000

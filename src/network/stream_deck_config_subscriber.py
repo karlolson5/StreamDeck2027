@@ -12,7 +12,7 @@ import constants as c
 class StreamDeckConfigSubscriber():
     def __init__(self, controller: StreamDeckController):
         self._controller = controller
-        self._button_config_sources: dict[int, tuple[StringSubscriber, BooleanSubscriber]]
+        self._button_config_sources: dict[int, tuple[StringSubscriber, BooleanSubscriber]] = {}
         self._button_config_callables: dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]] = {}
         self._init_complete = False
         self._ensure_init()
@@ -43,7 +43,7 @@ class StreamDeckConfigSubscriber():
     def _build_button_callables(self):
          for index, (appearance_source, active_source) in self._button_config_sources.items():
             self._button_config_callables[index] = (
-                lambda: ButtonConfig(appearance_source.get().split("$&$")),
+                lambda appearance_source=appearance_source: ButtonConfig(*appearance_source.get().split("$&$")),
                 active_source.get
             )
 

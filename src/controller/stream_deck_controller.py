@@ -1,5 +1,6 @@
 
 from collections.abc import Callable
+import os
 
 from StreamDeck.Devices.StreamDeck import StreamDeck
 from StreamDeck.Transport.Transport import TransportError
@@ -26,6 +27,7 @@ class StreamDeckController:
             self.buttons[index] = StreamDeckButton(self, index, str(index), suppliers[0], suppliers[1])
         self._remote_connected = False
         self.table: NetworkTable = c.NT_INSTANCE.getTable("StreamDeck")
+        self.icon_cache: dict[int, bytes] = {}
 
     def re_init(self, deck: Optional[StreamDeck], button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]]):
         self.close()
@@ -51,7 +53,7 @@ class StreamDeckController:
         self.update()
 
     def close(self):
-        self.close_deck()
+        self.close_deck() if self._deck is not None else None
 
     def close_deck(self):
         if self._deck.is_open():
@@ -81,7 +83,7 @@ class StreamDeckController:
         full_deck_image_size = (key_width + spacing_x, key_height + spacing_y)
 
         # Create a filled version of the image in the correct aspect ratio and then resize it to fit the full deck
-        foreground = Image.open(os.path.join(self._assets_path, image_filename)).convert("RGBA")
+        foreground = Image.open(os.path.join(c.DEFAULT_ASSETS_PATH, image_filename)).convert("RGBA")
         image = Image.new(
             "RGBA",
             (
@@ -123,7 +125,7 @@ class StreamDeckController:
         return PILHelper.to_native_key_format(self._deck, key_image)
 
     def render_multi_key_image(self, images: dict[int, bytes]):
-        for index, image in images:
+        for index, image in images.items():
             self.buttons[index].render_key_image(image)
 
     def render_default_background(self):
