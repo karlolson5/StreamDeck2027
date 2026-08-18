@@ -2,6 +2,7 @@ from collections.abc import Callable
 
 import tkinter as tk
 from tkinter import colorchooser, messagebox
+import constants as c
 
 class SimStreamDeck(CustomizableGridApp):
     def __init__(self, key_layout: tuple[int, int], tk_root: tk.Tk):
@@ -13,7 +14,11 @@ class SimStreamDeck(CustomizableGridApp):
         self._open: bool = False
         self._key_callbacks: Callable[[int, bool],[]] = lambda key, selected: None
         self._brightness: int = 100
-        self._key_image_format: dict[str, tuple[int, int]] = {"size": (32, 32)}
+        self.KEY_PIXEL_WIDTH = c.KEY_PIXEL_WIDTH
+        self.KEY_PIXEL_HEIGHT = c.KEY_PIXEL_HEIGHT
+        self.KEY_IMAGE_FORMAT = c.KEY_IMAGE_FORMAT
+        self.KEY_FLIP = c.KEY_FLIP
+        self.KEY_ROTATION = c.KEY_ROTATION
         super().__init__(self, tk_root, self._key_layout, self._key_image_format()["size"], self._key_callbacks, "Simulated Stream Deck")
 
     def deck_type(self):
@@ -32,7 +37,12 @@ class SimStreamDeck(CustomizableGridApp):
         return self._key_count
 
     def key_image_format(self) -> dict[str, tuple[int, int]]:
-        return self.key_image_format
+        return {
+            'size': (self.KEY_PIXEL_WIDTH, self.KEY_PIXEL_HEIGHT),
+            'format': self.KEY_IMAGE_FORMAT,
+            'flip': self.KEY_FLIP,
+            'rotation': self.KEY_ROTATION,
+        }
 
     def open(self):
         self._open = True
