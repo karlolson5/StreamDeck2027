@@ -87,3 +87,10 @@ def main(running: Callable[[], bool]):
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, exit_gracefully)
     main(lambda: _running)
+
+    # For simulated streamdeck only
+    # one of these things needs to run in a background thread...
+    # root = tk.Tk()
+    # app = CustomizableGridApp(root)
+    # root.geometry("650x400")
+    # root.mainloop()

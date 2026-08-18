@@ -9,16 +9,17 @@ from StreamDeck.ImageHelpers import PILHelper
 from controller.stream_deck_button import ButtonConfig, StreamDeckButton
 from PIL import Image, ImageOps
 from typing import Optional
+from sim.sim_stream_deck import SimStreamDeck
 
 class StreamDeckController:
-    def __init__(self, deck: Optional[StreamDeck] = None, button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]] = None):
+    def __init__(self, deck: Optional[StreamDeck | SimStreamDeck] = None, button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]] = None):
         self._init(deck, button_suppliers)
 
     def _init(self, deck: Optional[StreamDeck], button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]]):
         button_suppliers = button_suppliers if button_suppliers is not None else {}
         self._deck: StreamDeck = deck if deck else None
-        self.num_rows, self.num_cols = self._deck.key_layout if self._deck else (0,0)
-        self.num_buttons = self._deck.key_count if self._deck else 0
+        self.num_rows, self.num_cols = self._deck.key_layout() if self._deck else (0,0)
+        self.num_buttons = self._deck.key_count() if self._deck else 0
         self._default_background = self.generate_key_images_from_deck_sized_image(c.BACKGROUND_IMAGE) if self._deck else {}
         self.buttons: dict[int, StreamDeckButton] = {}
         for index, suppliers in button_suppliers.items():

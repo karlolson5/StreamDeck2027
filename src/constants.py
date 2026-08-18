@@ -29,7 +29,7 @@ class COLORS:
     DEFAULT_FOREGROUND = WHITE
     NO_CONFIG = YELLOW
 
-BRIGHTNESS = 80 # Stream Deck brightness as a percentage
+BRIGHTNESS: int = 80 # Stream Deck brightness as a percentage
 DEFAULT_BACKGROUND_COLOR = COLORS.BLACK
 DEFAULT_FOREGROUND_COLOR = COLORS.BLACK
 KEY_SPACING = (36, 36)
