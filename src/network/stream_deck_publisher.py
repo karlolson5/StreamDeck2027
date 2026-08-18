@@ -46,6 +46,7 @@ class StreamDeckPublisher(OutputPublisher):
             to_publish = self._controller.get_button_by_key(key).get_publish_list()
             for val in to_publish:
                 self._button_publishers[key].set(val)
+            to_publish = self._controller.get_button_by_key(key).clear_publish_list()
 
 
     def update(self):

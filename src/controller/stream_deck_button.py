@@ -69,6 +69,9 @@ class StreamDeckButton:
 
     def get_publish_list(self):
         return self.publish_list
+    
+    def clear_publish_list(self):
+        self.publish_list = []
 
     def render_key_image(self, image: bytes):
         self.controller._deck.set_key_image(self.index, image)
@@ -87,7 +90,7 @@ class StreamDeckButton:
         if cache_key in self.controller.icon_cache:
             return PILHelper.to_native_key_format(self.controller._deck, self.controller.icon_cache[cache_key])
         
-        image = PILHelper.create_key_image(self._deck, background=bg)
+        image = PILHelper.create_key_image(self.controller._deck, background=bg)
 
         # Draw text, fitting the font size to the key
         if tx != "" and fg != bg:
