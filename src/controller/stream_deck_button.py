@@ -10,6 +10,7 @@ from PIL import ImageDraw, ImageFont
 
 class ButtonConfig:
     def __init__(self,
+                 key: Optional[str] = None,
                  active_background: Optional[str] = None,
                  inactive_background: Optional[str] = None,
                  active_foreground: Optional[str] = None,
@@ -17,6 +18,7 @@ class ButtonConfig:
                  active_text: Optional[str] = None,
                  inactive_text: Optional[str] = None
                  ):
+        self.key = key if key is not None else ""
         self.active_background = active_background if active_background is not None else c.DEFAULT_BACKGROUND_COLOR
         self.inactive_background = inactive_background if inactive_background is not None else c.DEFAULT_BACKGROUND_COLOR
         self.active_foreground = active_foreground if active_foreground is not None else c.DEFAULT_FOREGROUND_COLOR
@@ -27,6 +29,7 @@ class ButtonConfig:
 
     def __hash__(self):
         return hash(
+            self.key.__hash__()+
             self.active_background.__hash__()+
             self.inactive_background.__hash__()+
             self.active_foreground.__hash__()+
@@ -56,6 +59,8 @@ class StreamDeckButton:
         new_config = self.config_supplier()
         if new_active == self.active and new_config == self.config:
             return
+        if new_config.key:
+            self.key = new_config.key
         self.active = new_active
         self.config = new_config
         self.render_key_image(self.render_key())
