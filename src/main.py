@@ -57,14 +57,14 @@ def main(running: Callable[[], bool]):
                 last_time = time.time()
 
                 while running() and controller.is_open():
-                    # update config sub, this is part of controller.update() now I think
-                    pub.send_heartbeat()
-                    pub.update()
                     try:
                         controller.update()
                     except TransportError:
                         pass
-                    
+                        
+                    pub.send_heartbeat()
+                    pub.update()
+
                     new_time = time.time()
                     d_time = new_time - last_time
                     if d_time < c.MIN_LOOP_TIME_S:
