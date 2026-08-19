@@ -8,7 +8,7 @@ from controller.stream_deck_controller import StreamDeckController
 import constants as c
 import util.utilities as u
 from StreamDeck.ImageHelpers import PILHelper
-from PIL import ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont
 
 class ButtonConfig:
     def __init__(self,
@@ -108,7 +108,7 @@ class StreamDeckButton:
 
     def _create_key_image_from_svg(self, tx: str) -> Optional[Image.Image]:
         try:
-            png_bytes = cairosvg.svg2png(bytestring=svg_text.encode('utf-8'))
+            png_bytes = cairosvg.svg2png(bytestring=tx.encode('utf-8'))
             image = Image.open(io.BytesIO(png_bytes))
             return PILHelper.create_scaled_key_image(self.controller._deck, image)
         except Exception:
@@ -144,7 +144,7 @@ class StreamDeckButton:
         if cache_key in self.controller.icon_cache:
             return PILHelper.to_native_key_format(self.controller._deck, self.controller.icon_cache[cache_key])
         
-        if tx.startswith("SVG:"):
+        if tx.lower().startswith("svg:"):
             image = self._create_key_image_from_svg(tx[4:])
         elif tx.lower().startswith("images/") or tx.lower().startswith("images\\"):
             image = self._create_key_image_from_asset(tx[7:])
