@@ -53,6 +53,7 @@ class StreamDeckButton:
         self.active_supplier: Callable[[], bool] = active_supplier
         self.active: bool = self.active_supplier()
         self.publish_list: list[bool] = []
+        self.last_render_hash: int = 0
 
     def update(self):
         new_active = self.active_supplier()
@@ -63,7 +64,7 @@ class StreamDeckButton:
             self.key = new_config.key
         self.active = new_active
         self.config = new_config
-        self.render_key_image(self.render_key())
+        self.render_key_image(self.create_key_image())
         return
 
     def pressed(self):
@@ -79,9 +80,13 @@ class StreamDeckButton:
         self.publish_list = []
 
     def render_key_image(self, image: bytes):
+        h = hash(image)
+        if self.last_render_hash == h:
+            return
+        self.last_render_hash = h
         self.controller._deck.set_key_image(self.index, image)
 
-    def render_key(self):
+    def create_key_image(self):
         if self.active:
             bg = self.config.active_background
             fg = self.config.active_foreground

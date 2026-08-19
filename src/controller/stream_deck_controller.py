@@ -52,6 +52,9 @@ class StreamDeckController:
         self._deck.set_key_callback(self.on_key_change)
         self.update()
 
+    def is_open(self):
+        return self._deck.is_open()
+
     def close(self):
         self.close_deck() if self._deck is not None else None
 
