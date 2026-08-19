@@ -4,7 +4,7 @@ import tkinter as tk
 import io
 import constants as c
 import PIL
-from PIL import Image
+from PIL import Image, ImageTk
 
 class SimStreamDeck(CustomizableGridApp):
     def __init__(self, key_layout: tuple[int, int], tk_root: tk.Tk):
@@ -19,9 +19,9 @@ class SimStreamDeck(CustomizableGridApp):
         self.KEY_PIXEL_WIDTH = c.KEY_PIXEL_WIDTH
         self.KEY_PIXEL_HEIGHT = c.KEY_PIXEL_HEIGHT
         self.KEY_IMAGE_FORMAT = c.KEY_IMAGE_FORMAT
-        self.KEY_FLIP = c.KEY_FLIP
-        self.KEY_ROTATION = c.KEY_ROTATION
-        super().__init__(tk_root, self.KEY_LAYOUT, self.key_image_format()["size"], self._key_callbacks, "Simulated Stream Deck")
+        self.KEY_FLIP = (False, False) # c.KEY_FLIP is for the physical flipping of the internal LED screen
+        self.KEY_ROTATION = 0 # c.KEY_ROTATION is for the physical rotation of the internal LED screen
+        super().__init__(tk_root, self.KEY_LAYOUT, self.key_image_format()["size"], lambda *args: self._key_callbacks(*args), "Simulated Stream Deck")
 
     def deck_type(self):
         return "SimStreamDeck"
@@ -47,7 +47,7 @@ class SimStreamDeck(CustomizableGridApp):
         }
 
     def set_key_image(self, index: int, image: bytes):
-        set_button_image(self, index, image)
+        self.set_button_image(self, index, image)
 
     def open(self):
         self._open = True
