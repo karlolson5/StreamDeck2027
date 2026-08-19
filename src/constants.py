@@ -10,7 +10,7 @@ font = font_manager.FontProperties(family="Arial")
 FONT_FILE = font_manager.findfont(font)
 DEFAULT_ASSETS_PATH = os.path.join(os.path.dirname(__file__), "../assets")
 
-SERVER_IPS = ("10.34.76.2", "127.0.0.1")
+SERVER_IPS = ("10.34.76.2", "127.0.0.1") # Robot IP (10.TE.AM.2) , Sim IP (127.0.0.1)
 MIN_LOOP_TIME_S = 0.02
 
 @dataclass
@@ -41,3 +41,6 @@ KEY_PIXEL_WIDTH, KEY_PIXEL_HEIGHT = 96, 96
 KEY_IMAGE_FORMAT = "JPEG"
 KEY_FLIP = (True, True)
 KEY_ROTATION = 0
+
+#SimStreamDeck config
+SIM_KEY_LAYOUT = (4, 8)

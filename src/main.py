@@ -1,9 +1,9 @@
-from collections.abc import Callable
-
-import constants as c
 import ctypes
+import argparse
 import time
 import signal
+from collections.abc import Callable
+import constants as c
 import util.utilities as u
 from StreamDeck.DeviceManager import DeviceManager
 from StreamDeck.Devices import StreamDeck
@@ -11,17 +11,20 @@ from StreamDeck.Transport.Transport import TransportError
 from network.stream_deck_config_subscriber import StreamDeckConfigSubscriber
 from network.stream_deck_publisher import StreamDeckPublisher
 from controller.stream_deck_controller import StreamDeckController
+from sim.sim_stream_deck import SimStreamDeck
 
 ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
 
 _running: bool = True
+use_sim_deck: bool = False
+use_sim_network: bool = False
 
 def exit_gracefully(*_):
     global _running  # pylint: disable=global-statement
     _running = False
 
 def main(running: Callable[[], bool]):
-    target_ip = c.SERVER_IPS[0] # TODO: decide by config, what's available, or something else
+    target_ip = c.SERVER_IPS[0 if not use_sim_network else 1]
     c.NT_INSTANCE.setServer(target_ip)
     c.NT_INSTANCE.startClient4("StreamDeck")
     controller = StreamDeckController()
@@ -33,7 +36,7 @@ def main(running: Callable[[], bool]):
                     print("Searching for Stream Deck...")
                     sent_search_message = True
                 
-                decks: list[StreamDeck.StreamDeck] = DeviceManager().enumerate()
+                decks: list[StreamDeck.StreamDeck | SimStreamDeck] = DeviceManager().enumerate() if not use_sim_deck else SimStreamDeck(c.SIM_KEY_LAYOUT, tk_root)
 
                 if not decks:
                     pub.send_connected(False)
@@ -87,6 +90,18 @@ def main(running: Callable[[], bool]):
         print("Cleanup complete.")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--sim-deck", action='store_true', help="Use simulated Stream Deck GUI.")
+    parser.add_argument("--sim-code", action='store_true', help="Use when running simulated robot code.")
+    parser.add_argument("-s", "--sim", action='store_true', help="Simulation setup, equivalent to both --sim-code and --sim-deck.")
+    args = parser.parse_args()
+
+    if args.sim or args.sim_deck:
+        use_sim_deck = True # simulate deck
+    if args.sim or args.sim_code:
+        use_sim_network = True # simulated robot code expected
+
+
     signal.signal(signal.SIGINT, exit_gracefully)
     main(lambda: _running)
 

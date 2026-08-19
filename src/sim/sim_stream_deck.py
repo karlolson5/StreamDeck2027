@@ -69,7 +69,7 @@ class SimStreamDeck(CustomizableGridApp):
         return True
 
     def start_gui(self):
-        pass
+        pass # TODO implement using root
 
 class CustomizableGridApp:
     def __init__(self, root: tk.Tk, key_layout: tuple[int, int], key_size: tuple[int, int], key_callbacks: Callable[[int, bool],[]], title: str = "Button Grid"):
