@@ -107,7 +107,6 @@ if __name__ == "__main__":
     if args.sim or args.sim_code:
         use_sim_network = True # simulated robot code expected
 
-
     signal.signal(signal.SIGINT, exit_gracefully)
 
     if use_sim_deck:
@@ -128,10 +127,3 @@ if __name__ == "__main__":
         _running = False
     else:
         main(lambda: _running)
-
-    # For simulated streamdeck only
-    # one of these things needs to run in a background thread...
-    # root = tk.Tk()
-    # app = CustomizableGridApp(root)
-    # root.geometry("650x400")
-    # root.mainloop()

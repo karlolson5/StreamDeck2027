@@ -17,7 +17,7 @@ class StreamDeckController:
         self._init(deck, button_suppliers)
 
     def _init(self, deck: Optional[StreamDeck], button_suppliers: Optional[dict[int, tuple[Callable[[],ButtonConfig], Callable[[],bool]]]]):
-        button_suppliers = button_suppliers if button_suppliers is not None else {}
+        button_suppliers = button_suppliers or {}
         self._deck: StreamDeck = deck if deck else None
         self.num_rows, self.num_cols = self._deck.key_layout() if self._deck else (0,0)
         self.num_buttons = self._deck.key_count() if self._deck else 0
@@ -57,7 +57,8 @@ class StreamDeckController:
         return self._deck.is_open()
 
     def close(self):
-        self.close_deck() if self._deck is not None else None
+        if self._deck:
+            self.close_deck()
 
     def close_deck(self):
         if self._deck.is_open():

@@ -18,13 +18,13 @@ class ButtonConfig:
                  active_text: Optional[str] = None,
                  inactive_text: Optional[str] = None
                  ):
-        self.key = key if key is not None else ""
-        self.active_background = active_background if active_background is not None else c.DEFAULT_BACKGROUND_COLOR
-        self.inactive_background = inactive_background if inactive_background is not None else c.DEFAULT_BACKGROUND_COLOR
-        self.active_foreground = active_foreground if active_foreground is not None else c.DEFAULT_FOREGROUND_COLOR
-        self.inactive_foreground = inactive_foreground if inactive_foreground is not None else c.DEFAULT_FOREGROUND_COLOR
-        self.active_text = active_text if active_text is not None else ""
-        self.inactive_text = inactive_text if inactive_text is not None else ""
+        self.key = key or ""
+        self.active_background = active_background or c.DEFAULT_BACKGROUND_COLOR
+        self.inactive_background = inactive_background or c.DEFAULT_BACKGROUND_COLOR
+        self.active_foreground = active_foreground or c.DEFAULT_FOREGROUND_COLOR
+        self.inactive_foreground = inactive_foreground or c.DEFAULT_FOREGROUND_COLOR
+        self.active_text = active_text or ""
+        self.inactive_text = inactive_text or ""
         self.cache: int = 0
 
     def __hash__(self):
