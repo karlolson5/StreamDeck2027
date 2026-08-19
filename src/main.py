@@ -21,6 +21,9 @@ def exit_gracefully(*_):
     _running = False
 
 def main(running: Callable[[], bool]):
+    target_ip = c.SERVER_IPS[0] # TODO: decide by config, what's available, or something else
+    c.NT_INSTANCE.setServer(target_ip)
+    c.NT_INSTANCE.startClient4("StreamDeck")
     controller = StreamDeckController()
     with StreamDeckConfigSubscriber(controller) as sub, StreamDeckPublisher(controller) as pub:
         try:
