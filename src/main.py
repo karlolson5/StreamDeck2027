@@ -14,7 +14,7 @@ from StreamDeck.Transport.Transport import TransportError
 from network.stream_deck_config_subscriber import StreamDeckConfigSubscriber
 from network.stream_deck_publisher import StreamDeckPublisher
 from controller.stream_deck_controller import StreamDeckController
-from sim.sim_stream_deck import SimStreamDeck
+from sim.sim_stream_deck import SimStreamDeckXL
 
 ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
 
@@ -39,9 +39,9 @@ def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
                     print("Searching for Stream Deck...")
                     sent_search_message = True
                 
-                decks: list[StreamDeck.StreamDeck | SimStreamDeck] = (
+                decks: list[StreamDeck.StreamDeck | SimStreamDeckXL] = (
                     DeviceManager().enumerate() if not use_sim_deck
-                    else [SimStreamDeck(c.SIM_KEY_LAYOUT, tk_root)]
+                    else [SimStreamDeckXL(c.SIM_KEY_LAYOUT, tk_root)]
                 )
 
                 if not decks:
