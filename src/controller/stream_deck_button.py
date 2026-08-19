@@ -2,9 +2,11 @@
 
 from collections.abc import Callable
 from typing import Optional
-
+import cairosvg
+import io
 from controller.stream_deck_controller import StreamDeckController
 import constants as c
+import util.utilities as u
 from StreamDeck.ImageHelpers import PILHelper
 from PIL import ImageDraw, ImageFont
 
@@ -86,6 +88,48 @@ class StreamDeckButton:
         self.last_render_hash = h
         self.controller._deck.set_key_image(self.index, image)
 
+    def _create_key_image_from_bgfgtx(self, bg, fg, tx) -> Image.Image:
+        image = PILHelper.create_key_image(self.controller._deck, background=bg)
+        
+        # Draw text, fitting the font size to the key
+        if tx != "" and fg != bg:
+            font_fraction = 0.8
+            fontsize = 1
+            draw = ImageDraw.Draw(image)
+            font = ImageFont.truetype(c.FONT_FILE, fontsize)
+            l, t, r, b = draw.multiline_textbbox((0,0), tx, font)
+            while r-l < font_fraction*image.size[0] and b-t < font_fraction*image.size[1]:
+                fontsize += 1
+                font = ImageFont.truetype(c.FONT_FILE, fontsize)
+                l, t, r, b = draw.multiline_textbbox((0,0), tx, font)
+
+            draw.multiline_text((image.width/2, image.height/2), tx, fill=fg, font=font, anchor="mm", align="center")
+        return image
+
+    def _create_key_image_from_svg(self, tx: str) -> Optional[Image.Image]:
+        try:
+            png_bytes = cairosvg.svg2png(bytestring=svg_text.encode('utf-8'))
+            image = Image.open(io.BytesIO(png_bytes))
+            return PILHelper.create_scaled_key_image(self.controller._deck, image)
+        except Exception:
+            print("The specified code does not form a valid svg")
+            return self._warning_image()
+
+    def _create_key_image_from_asset(self, filename: str) -> Optional[Image.Image]:
+        try:
+            with Image.open(u.asset_path("images",filename)) as image:
+                image.load()
+                return PILHelper.create_scaled_key_image(self.controller._deck, image)
+        except FileNotFoundError:
+            print("The specified image file could not be found.")
+            return self._warning_image()
+        except IOError:
+            print("Failed to open or decode the image file.")
+            return self._warning_image()
+
+    def _warning_image(self):
+        return self._create_key_image_from_bgfgtx(*c.WARNING_BGFGTX)
+
     def create_key_image(self):
         if self.active:
             bg = self.config.active_background
@@ -100,21 +144,12 @@ class StreamDeckButton:
         if cache_key in self.controller.icon_cache:
             return PILHelper.to_native_key_format(self.controller._deck, self.controller.icon_cache[cache_key])
         
-        image = PILHelper.create_key_image(self.controller._deck, background=bg)
-
-        # Draw text, fitting the font size to the key
-        if tx != "" and fg != bg:
-            font_fraction = 0.8
-            fontsize = 1
-            draw = ImageDraw.Draw(image)
-            font = ImageFont.truetype(c.FONT_FILE, fontsize)
-            l, t, r, b = draw.multiline_textbbox((0,0), tx, font)
-            while r-l < font_fraction*image.size[0] and b-t < font_fraction*image.size[1]:
-                fontsize += 1
-                font = ImageFont.truetype(c.FONT_FILE, fontsize)
-                l, t, r, b = draw.multiline_textbbox((0,0), tx, font)
-
-            draw.multiline_text((image.width/2, image.height/2), tx, fill=fg, font=font, anchor="mm", align="center")
+        if tx.startswith("SVG:"):
+            image = self._create_key_image_from_svg(tx[4:])
+        elif tx.lower().startswith("images/") or tx.lower().startswith("images\\"):
+            image = self._create_key_image_from_asset(tx[7:])
+        else:
+            image = self._create_key_image_from_bgfgtx(bg, fg, tx)
 
         self.controller.icon_cache[cache_key] = image
         return PILHelper.to_native_key_format(self.controller._deck, image)

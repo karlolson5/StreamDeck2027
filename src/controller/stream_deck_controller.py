@@ -6,6 +6,7 @@ from StreamDeck.Devices.StreamDeck import StreamDeck
 from StreamDeck.Transport.Transport import TransportError
 from ntcore import NetworkTable
 import constants as c
+import util.utilities as u
 from StreamDeck.ImageHelpers import PILHelper
 from controller.stream_deck_button import ButtonConfig, StreamDeckButton
 from PIL import Image, ImageOps
@@ -21,7 +22,7 @@ class StreamDeckController:
         self._deck: StreamDeck = deck if deck else None
         self.num_rows, self.num_cols = self._deck.key_layout() if self._deck else (0,0)
         self.num_buttons = self._deck.key_count() if self._deck else 0
-        self._default_background = self.generate_key_images_from_deck_sized_image(c.BACKGROUND_IMAGE) if self._deck else {}
+        self._default_background = self.generate_key_images_from_deck_sized_image(u.asset_path("images",c.BACKGROUND_IMAGE)) if self._deck else {}
         self._unconfigured_key_image = PILHelper.create_key_image(self._deck, background=constants.COLORS.NO_CONFIG)
         self.buttons: dict[int, StreamDeckButton] = {}
         for index, suppliers in button_suppliers.items():
