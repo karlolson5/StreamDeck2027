@@ -47,7 +47,7 @@ class SimStreamDeck(CustomizableGridApp):
         }
 
     def set_key_image(self, index: int, image: bytes):
-        self.set_button_image(self, index, image)
+        self.set_button_image(index, image)
 
     def open(self):
         self._open = True
