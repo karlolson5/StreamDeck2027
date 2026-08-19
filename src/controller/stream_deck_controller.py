@@ -22,6 +22,7 @@ class StreamDeckController:
         self.num_rows, self.num_cols = self._deck.key_layout() if self._deck else (0,0)
         self.num_buttons = self._deck.key_count() if self._deck else 0
         self._default_background = self.generate_key_images_from_deck_sized_image(c.BACKGROUND_IMAGE) if self._deck else {}
+        self._unconfigured_key_image = PILHelper.create_key_image(self._deck, background=constants.COLORS.NO_CONFIG)
         self.buttons: dict[int, StreamDeckButton] = {}
         for index, suppliers in button_suppliers.items():
             self.buttons[index] = StreamDeckButton(self, index, str(index), suppliers[0], suppliers[1])
@@ -149,6 +150,10 @@ class StreamDeckController:
 
         for b in self.buttons.values():
             b.update()
+
+        for index in self._deck.key_count():
+            if index not in self.buttons:
+                self._deck.set_key_image(index, self._unconfigured_key_image)
 
     def on_key_change(self, _, key: int, selected: bool):
         b = self.buttons[key]
