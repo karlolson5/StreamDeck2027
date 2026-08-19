@@ -44,7 +44,7 @@ class StreamDeckController:
             pass
 
     def __repr__(self):
-        return f'{self._deck.deck_type()} (sn: {self._deck.get_serial_number()}, fw: {self._deck.get_firmware_version()})'
+        return f'{self._deck.deck_type()} (sn: {self._deck.get_serial_number()})'
 
     def open(self):
         self._deck.open()
