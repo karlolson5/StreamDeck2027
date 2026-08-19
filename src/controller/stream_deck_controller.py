@@ -151,7 +151,7 @@ class StreamDeckController:
         for b in self.buttons.values():
             b.update()
 
-        for index in self._deck.key_count():
+        for index in range(self._deck.key_count()):
             if index not in self.buttons:
                 self._deck.set_key_image(index, self._unconfigured_key_image)
 

@@ -51,7 +51,6 @@ class SimStreamDeck(CustomizableGridApp):
 
     def open(self):
         self._open = True
-        self.start_gui()
 
     def close(self):
         self._open = False
@@ -67,9 +66,6 @@ class SimStreamDeck(CustomizableGridApp):
 
     def is_visual(self) -> bool:
         return True
-
-    def start_gui(self):
-        pass # TODO implement using root
 
 class CustomizableGridApp:
     def __init__(self, root: tk.Tk, key_layout: tuple[int, int], key_size: tuple[int, int], key_callbacks: Callable[[int, bool],[]], title: str = "Button Grid"):
@@ -122,26 +118,20 @@ class CustomizableGridApp:
             self.grid_frame.columnconfigure(c, weight=1)
 
     def set_text(self, index: int, new_text: str):
-        """Applies configuration string to the targeted element."""
         if index in self.buttons:
-            self.buttons[index].config(text=new_text)
+            self.root.after(0, lambda: self.buttons[index].config(text=new_text))
 
     def set_bg_color(self, index: int, color: str):
-        """Applies configuration string to the targeted element."""
         if index in self.buttons:
-            self.buttons[index].config(bg=color)
+            self.root.after(0, lambda: self.buttons[index].config(bg=color))
 
     def set_fg_color(self, index: int, color: str):
-        """Applies configuration string to the targeted element."""
         if index in self.buttons:
-            self.buttons[index].config(fg=color)
+            self.root.after(0, lambda: self.buttons[index].config(fg=color))
 
     def set_button_image(self, index: int, image: bytes):
-        # 1. Load the image (Supports PNG and GIF natively)
-        img = PIL.ImageTk.PhotoImage(Image.open(io.BytesIO(image)))
-
-        # 2. Create the button and pass the image
-        self.buttons[index].config(image=img)
-
-        # 3. CRITICAL: Save a reference to prevent garbage collection
-        self.buttons[index].image = img
+        def _update():
+            img = PIL.ImageTk.PhotoImage(Image.open(io.BytesIO(image)))
+            self.buttons[index].config(image=img)
+            self.buttons[index].image = img  # keep a reference so it isn't garbage collected
+        self.root.after(0, _update)

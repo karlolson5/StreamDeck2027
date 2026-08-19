@@ -1,8 +1,11 @@
+import threading
+import tkinter as tk
 import ctypes
 import argparse
 import time
 import signal
 from collections.abc import Callable
+from typing import Optional
 import constants as c
 import util.utilities as u
 from StreamDeck.DeviceManager import DeviceManager
@@ -23,7 +26,7 @@ def exit_gracefully(*_):
     global _running  # pylint: disable=global-statement
     _running = False
 
-def main(running: Callable[[], bool]):
+def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
     target_ip = c.SERVER_IPS[0 if not use_sim_network else 1]
     c.NT_INSTANCE.setServer(target_ip)
     c.NT_INSTANCE.startClient4("StreamDeck")
@@ -36,7 +39,10 @@ def main(running: Callable[[], bool]):
                     print("Searching for Stream Deck...")
                     sent_search_message = True
                 
-                decks: list[StreamDeck.StreamDeck | SimStreamDeck] = DeviceManager().enumerate() if not use_sim_deck else SimStreamDeck(c.SIM_KEY_LAYOUT, tk_root)
+                decks: list[StreamDeck.StreamDeck | SimStreamDeck] = (
+                    DeviceManager().enumerate() if not use_sim_deck
+                    else [SimStreamDeck(c.SIM_KEY_LAYOUT, tk_root)]
+                )
 
                 if not decks:
                     pub.send_connected(False)
@@ -103,7 +109,25 @@ if __name__ == "__main__":
 
 
     signal.signal(signal.SIGINT, exit_gracefully)
-    main(lambda: _running)
+
+    if use_sim_deck:
+        # Tkinter owns the main thread; the old polling loop moves to a
+        # background thread that starts before the window loop takes over.
+        root = tk.Tk()
+
+        def on_close():
+            exit_gracefully()
+            root.destroy()
+
+        root.protocol("WM_DELETE_WINDOW", on_close)  # closing the window stops everything cleanly
+
+        worker = threading.Thread(target=main, args=(lambda: _running, root), daemon=True)
+        worker.start()
+
+        root.mainloop()   # blocks here until the window closes
+        _running = False
+    else:
+        main(lambda: _running)
 
     # For simulated streamdeck only
     # one of these things needs to run in a background thread...
