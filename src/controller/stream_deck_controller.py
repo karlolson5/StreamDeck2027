@@ -89,7 +89,7 @@ class StreamDeckController:
         full_deck_image_size = (key_width + spacing_x, key_height + spacing_y)
 
         # Create a filled version of the image in the correct aspect ratio and then resize it to fit the full deck
-        foreground = Image.open(u.asset_path("images",image_filename)).convert("RGBA")
+        foreground = Image.open(image_filename).convert("RGBA")
         image = Image.new(
             "RGBA",
             (
