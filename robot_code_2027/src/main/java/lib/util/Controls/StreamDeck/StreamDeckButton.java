@@ -46,12 +46,8 @@ public class StreamDeckButton extends Trigger {
         this(calculate_index(row, col), key);
     }
 
-    public StreamDeckButton withActiveSupplier(BooleanSupplier activeSupplier) {
-        this.activeSupplier = activeSupplier;
-    }
-
     public void update() {
-        activePublisher.set(button.activeSupplier.getAsBoolean());
+        activePublisher.set(activeSupplier.getAsBoolean());
     }
 
     private static int calculate_index(int row, int col) {
@@ -60,6 +56,11 @@ public class StreamDeckButton extends Trigger {
 
     private void publishConfig() {
         configPublisher.set(getConfigString());
+    }
+
+    public StreamDeckButton withActiveSupplier(BooleanSupplier activeSupplier) {
+        this.activeSupplier = activeSupplier;
+        return this;
     }
 
     private void setInactiveIfUnconfigured() {

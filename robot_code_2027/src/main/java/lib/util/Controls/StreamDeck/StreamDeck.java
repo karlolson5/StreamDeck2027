@@ -31,6 +31,7 @@ public class StreamDeck extends VirtualSubsystem {
     public StreamDeckButton addButton(StreamDeckButton button) {
         verifyAddedButton(button);
         buttonSet.add(button);
+        button.publishConfig();
         return button;
     }
 
