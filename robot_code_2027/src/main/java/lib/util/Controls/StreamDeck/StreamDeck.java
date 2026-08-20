@@ -9,6 +9,11 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class StreamDeck extends VirtualSubsystem {
+    // Supports ONLY StreamDeckXL
+    public static final rowCount = 4;
+    public static final colCount = 8;
+    public static final buttonCount = rowCount * colCount;
+
     static final NetworkTable deckTable = NetworkTableInstance.getDefault().getTable("StreamDeck");
 
     private Set<StreamDeckButton> buttonSet = new HashSet<>();

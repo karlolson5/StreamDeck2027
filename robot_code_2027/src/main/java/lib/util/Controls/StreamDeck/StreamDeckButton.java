@@ -31,6 +31,9 @@ public class StreamDeckButton extends Trigger {
     private static final BooleanSubscriber connectedSubscriber = StreamDeck.deckTable.getBooleanTopic("Connected").subscribe(false);
 
     private StreamDeckButton(int index, String key) {
+        if (index >= StreamDeck.buttonCount) {
+            throw new IllegalArgumentException("StreamDeckButton index " + index + " out of bounds, must be <=" + StreamDeck.buttonCount);
+        }
         this(index, key, new LoggedNetworkBoolean("StreamDeck/" + key, false));
     }
 
@@ -50,6 +53,12 @@ public class StreamDeckButton extends Trigger {
     }
 
     public StreamDeckButton(int row, int col, String key) {
+        if (col >= StreamDeck.buttonCount) {
+            throw new IllegalArgumentException("StreamDeckButton index " + col + " out of bounds, must be <=" + StreamDeck.colCount);
+        }
+        if (row >= StreamDeck.rowCount) {
+            throw new IllegalArgumentException("StreamDeckButton row " + row + " out of bounds, must be <=" + StreamDeck.rowCount);
+        }
         this(calculate_index(row, col), key);
     }
 
