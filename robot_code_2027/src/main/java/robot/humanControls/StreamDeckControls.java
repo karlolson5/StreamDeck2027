@@ -78,6 +78,7 @@ public class StreamDeckControls {
         StreamDeckButtonConfig activeConfig =
                 new StreamDeckButtonConfig(COColor.kGreen.toString(), COColor.kBlack.toString(), "");
 
+        // Use button directly as a trigger, OR
         streamdeck.addButton(
                 new StreamDeckButton(0, 0, "Shoot from Hub")
                         .withInactiveConfig(orangeConfig)
@@ -95,23 +96,46 @@ public class StreamDeckControls {
                 }
         ).ignoringDisable(true));
 
+        // Reference button as trigger through `streamdeck`, OR
         streamdeck.addButton(
                 new StreamDeckButton(0, 1, "Shoot from Tower")
                         .withInactiveConfig(orangeConfig)
                         .withActiveConfig(activeConfig)
                         .withText("SHT\nTWR")
                         .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TOWER)
-        )
-        .onTrue(Commands.runOnce(() -> {
-                ShooterOverride current = shooterManager.getShooterOverride();
-                if (current == ShooterOverride.TOWER) {
-                shooterManager.setShooterOverride(ShooterOverride.NONE);
-                } else {
-                shooterManager.setShooterOverride(ShooterOverride.TOWER);
-                }
-        })
-        .ignoringDisable(true));
+        );
 
+        streamdeck.button("Shoot from Tower")
+                .onTrue(Commands.runOnce(() -> {
+                        ShooterOverride current = shooterManager.getShooterOverride();
+                        if (current == ShooterOverride.TOWER) {
+                        shooterManager.setShooterOverride(ShooterOverride.NONE);
+                        } else {
+                        shooterManager.setShooterOverride(ShooterOverride.TOWER);
+                        }
+                })
+                .ignoringDisable(true));
+
+        // use StreamDeckButton object as a Trigger (it is one)
+        StreamDeckButton shootFromTrenchButton = streamdeck.addButton(
+                new StreamDeckButton(0, 2, "Shoot from Trench")
+                        .withInactiveConfig(orangeConfig)
+                        .withActiveConfig(activeConfig)
+                        .withText("SHT\nTCH")
+                        .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TRENCH)
+        );
+
+        shootFromTrenchButton.onTrue(Commands.runOnce(() -> {
+                        ShooterOverride current = shooterManager.getShooterOverride();
+                        if (current == ShooterOverride.TRENCH) {
+                        shooterManager.setShooterOverride(ShooterOverride.NONE);
+                        } else {
+                        shooterManager.setShooterOverride(ShooterOverride.TRENCH);
+                        }
+                })
+                .ignoringDisable(true));
+
+        // Stream Deck buttons are just normal triggers, so chain them like any other trigger
         streamdeck.addButton(
                 new StreamDeckButton(0, 7, "Reset Gyro 1")
                         .withInactiveConfig(tealConfig)
