@@ -2,8 +2,14 @@ package frc.lib.util.Controls.StreamDeck;
 
 import java.util.ArrayList;
 import java.util.List;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import java.util.function.BooleanSupplier;
+import edu.wpi.first.networktables.BooleanPublisher;
+import edu.wpi.first.networktables.StringPublisher;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
-public class StreamDeckButton {
+public class StreamDeckButton extends Trigger {
 
     private final int index;
     private final String key;
@@ -15,17 +21,54 @@ public class StreamDeckButton {
     private String inactive_text = "";
     private boolean active_set = false;
     private boolean inactive_set = false;
+    private LoggedNetworkBoolean pressed;
+    private BooleanPublisher activePublisher;
+    private StringPublisher configPublisher;
+    private BooleanSupplier activeSupplier;
+    private NetworkTable table;
 
-    private StreamDeckButton(int index, String key) {
+    private StreamDeckButton(int index, String key, BooleanSupplier activeSupplier) {
+        pressed = new LoggedNetworkBoolean("StreamDeck/" + key);
+        this.activeSupplier = activeSupplier;
+        super(pressed);
+        table = NetworkTableInstance.getDefault()
+            .getTable("StreamDeck").getSubTable("Button/" + index);
+        configPublisher = table.getStringTopic("Appearance").publish();
+        activePublisher = talbe.getStringTopic("Selected").publish();
         this.index = index;
         this.key = key;
     }
+
+    private StreamDeckButton(int index, String key) {
+        pressed = new LoggedNetworkBoolean("StreamDeck/" + key);
+        activeSupplier = pressed;
+        super(pressed);
+        table = NetworkTableInstance.getDefault()
+            .getTable("StreamDeck").getSubTable("Button/" + index);
+        configPublisher = table.getStringTopic("Appearance").publish();
+        activePublisher = talbe.getStringTopic("Selected").publish();
+        this.index = index;
+        this.key = key;
+    }
+
     public StreamDeckButton(int row, int col, String key) {
         this(calculate_index(row, col), key);
     }
 
+    public StreamDeckButton(int row, int col, String key, BooleanSupplier activeSupplier) {
+        this(calculate_index(row, col), key, activeSupplier);
+    }
+
+    public void update() {
+        activePublisher.set(button.activeSupplier.getAsBoolean());
+    }
+
     private int calculate_index(int row, int col) {
         return row * 8 + col % 8;
+    }
+
+    private void publishConfig() {
+        configPublisher.set(getConfigString());
     }
 
     private void setInactiveIfUnconfigured() {
@@ -158,15 +201,7 @@ public class StreamDeckButton {
         return key;
     }
 
-    public static String getConfigNetworkKey() {
-        return "Appearance";
-    }
-
-    public static String getPressedNetworkKey() {
-        return "Selected";
-    }
-
-    public String getConfigString() {
+    private String getConfigString() {
         StringBuilder sb = new StringBuilder();
         sb.append(key);
         sb.append("$&$");
