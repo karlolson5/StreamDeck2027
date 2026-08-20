@@ -3,6 +3,8 @@ package frc.lib.util.Controls.StreamDeck;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
+import java.util.Objects;
+import frc.lib.util.VirtualSubsystem;
 
 public class StreamDeck extends VirtualSubsystem {
     private Set<StreamDeckButton> buttonSet = new HashSet<>();
@@ -28,13 +30,7 @@ public class StreamDeck extends VirtualSubsystem {
 
     public StreamDeckButton addButton(StreamDeckButton button) {
         verifyAddedButton(button);
-        buttonSet.put(button);
-        return button;
-    }
-
-    public StreamDeckButton addButton(StreamDeckButton button, BooleanSupplier activeSupplier) {
-        verifyAddedButton(button);
-        buttonSet.put(button);
+        buttonSet.add(button);
         return button;
     }
 

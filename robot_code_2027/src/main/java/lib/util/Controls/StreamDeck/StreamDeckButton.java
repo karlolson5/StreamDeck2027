@@ -27,23 +27,8 @@ public class StreamDeckButton extends Trigger {
     private BooleanSupplier activeSupplier;
     private NetworkTable table;
 
-    private StreamDeckButton(int index, String key, BooleanSupplier activeSupplier) {
-        this(index, key, activeSupplier, new LoggedNetworkBoolean("StreamDeck/" + key));
-    }
-
-    private StreamDeckButton(int index, String key, BooleanSupplier activeSupplier, LoggedNetworkBoolean pressed) {
-        super(pressed::get);
-        this.pressed = pressed;
-        this.activeSupplier = activeSupplier;
-        this.index = index;
-        this.key = key;
-        this.table = NetworkTableInstance.getDefault().getTable("StreamDeck").getSubTable("Button/" + index);
-        this.configPublisher = table.getStringTopic("Appearance").publish();
-        this.activePublisher = table.getBooleanTopic("Selected").publish();
-    }
-
     private StreamDeckButton(int index, String key) {
-        this(index, key, activeSupplier, new LoggedNetworkBoolean("StreamDeck/" + key));
+        this(index, key, new LoggedNetworkBoolean("StreamDeck/" + key));
     }
 
     private StreamDeckButton(int index, String key, LoggedNetworkBoolean pressed) {
@@ -61,15 +46,15 @@ public class StreamDeckButton extends Trigger {
         this(calculate_index(row, col), key);
     }
 
-    public StreamDeckButton(int row, int col, String key, BooleanSupplier activeSupplier) {
-        this(calculate_index(row, col), key, activeSupplier);
+    public StreamDeckButton withActiveSupplier(BooleanSupplier activeSupplier) {
+        this.activeSupplier = activeSupplier;
     }
 
     public void update() {
         activePublisher.set(button.activeSupplier.getAsBoolean());
     }
 
-    private int calculate_index(int row, int col) {
+    private static int calculate_index(int row, int col) {
         return row * 8 + col % 8;
     }
 

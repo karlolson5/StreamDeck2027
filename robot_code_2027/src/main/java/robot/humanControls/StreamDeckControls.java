@@ -82,8 +82,9 @@ public class StreamDeckControls {
                 new StreamDeckButton(0, 0, "Shoot from Hub")
                         .withInactiveConfig(orangeConfig)
                         .withActiveConfig(activeConfig)
-                        .withText("SHT\nHUB"),
-                () -> shooterManager.getShooterOverride() == ShooterOverride.HUB)
+                        .withText("SHT\nHUB")
+                        .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.HUB)
+        )
         .onTrue(Commands.runOnce(() -> {
                         ShooterOverride current = shooterManager.getShooterOverride();
                         if (current == ShooterOverride.HUB) {
@@ -98,8 +99,9 @@ public class StreamDeckControls {
                 new StreamDeckButton(0, 1, "Shoot from Tower")
                         .withInactiveConfig(orangeConfig)
                         .withActiveConfig(activeConfig)
-                        .withText("SHT\nTWR"),
-                () -> shooterManager.getShooterOverride() == ShooterOverride.TOWER)
+                        .withText("SHT\nTWR")
+                        .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TOWER)
+        )
         .onTrue(Commands.runOnce(() -> {
                 ShooterOverride current = shooterManager.getShooterOverride();
                 if (current == ShooterOverride.TOWER) {
