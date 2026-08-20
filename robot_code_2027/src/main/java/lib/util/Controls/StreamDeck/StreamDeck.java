@@ -10,9 +10,9 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class StreamDeck extends VirtualSubsystem {
     // Supports ONLY StreamDeckXL
-    public static final rowCount = 4;
-    public static final colCount = 8;
-    public static final buttonCount = rowCount * colCount;
+    public static final int rowCount = 4;
+    public static final int colCount = 8;
+    public static final int buttonCount = rowCount * colCount;
 
     static final NetworkTable deckTable = NetworkTableInstance.getDefault().getTable("StreamDeck");
 
@@ -23,29 +23,43 @@ public class StreamDeck extends VirtualSubsystem {
         buttonSet.forEach(button -> button.update());
     }
 
-    private void verifyAddedButton(StreamDeckButton button) {
+    private void verifyAddedButton(int index, String key) {
         if (buttonSet.stream().anyMatch(
-                existingButton -> Objects.equals(button.getKey(), existingButton.getKey())
+                existingButton -> Objects.equals(key, existingButton.getKey())
             )) {
             throw new IllegalArgumentException("Button with that key has already been added");
         }
         if (buttonSet.stream().anyMatch(
-                existingButton -> Objects.equals(button.getIndex(), existingButton.getIndex())
+                existingButton -> Objects.equals(index, existingButton.getIndex())
             )) {
             throw new IllegalArgumentException("Button at that location (Index) has already been added");
         }
         return;
     }
 
-    public StreamDeckButton addButton(StreamDeckButton button) {
+    public static int calculate_index(int row, int col) {
+        validate(row, rowCount, "row");
+        validate(col, colCount, "col");
+        return validate(row * colCount + col % colCount, buttonCount, "index");
+    }
+
+    private int validate(int index, int max, String name) {
+        if (index >= max) {
+            throw new IllegalArgumentException("StreamDeck " + name + " " + index + " out of bounds, must be >= 0, <" + max);
+        }
+        return index;
+    }
+
+    public StreamDeckButton addButton(int row, int col, String key) {
+        int index = calculate_index(row, col);
         try {
-            verifyAddedButton(button);
+            verifyAddedButton(index, key);
         } catch (IllegalArgumentException e) {
             button.closePublishers();
             throw e;
         }
+        button = new StreamDeckButton(index, key);
         buttonSet.add(button);
-        button.publishConfig();
         return button;
     }
 

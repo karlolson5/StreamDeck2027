@@ -9,6 +9,7 @@ import edu.wpi.first.networktables.BooleanSubscriber;
 import edu.wpi.first.networktables.StringPublisher;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.PubSubOption;
 
 public class StreamDeckButton extends Trigger {
 
@@ -30,13 +31,14 @@ public class StreamDeckButton extends Trigger {
 
     private static final BooleanSubscriber connectedSubscriber = StreamDeck.deckTable.getBooleanTopic("Connected").subscribe(false);
 
-    private StreamDeckButton(int index, String key) {
-        if (index >= StreamDeck.buttonCount) {
-            throw new IllegalArgumentException("StreamDeckButton index " + index + " out of bounds, must be <=" + StreamDeck.buttonCount);
-        }
-        this(index, key, NetworkTableInstance.getDefault()
-            .getBooleanTopic("StreamDeck/" + key)
-            .subscribe(false, PubSubOption.sendAll(true), PubSubOption.pollStorage(20)));
+    StreamDeckButton(int index, String key) {
+        this(
+            validate(index,StreamDeck.buttonCount, "index"),
+            key,
+            NetworkTableInstance.getDefault()
+                .getBooleanTopic("StreamDeck/" + key)
+                .subscribe(false, PubSubOption.sendAll(true), PubSubOption.pollStorage(20))
+        );
     }
 
     private StreamDeckButton(int index, String key, BooleanSubscriber pressedSubscriber) {
@@ -48,6 +50,7 @@ public class StreamDeckButton extends Trigger {
         this.table = StreamDeck.deckTable.getSubTable("Button/" + index);
         this.configPublisher = table.getStringTopic("Appearance").publish();
         this.activePublisher = table.getBooleanTopic("Active").publish();
+        publishConfig();
     }
 
     private static BooleanSupplier connectedAndPressed(BooleanSubscriber pressedSubscriber) {
@@ -67,25 +70,22 @@ public class StreamDeckButton extends Trigger {
         };
     }
 
-    public StreamDeckButton(int row, int col, String key) {
-        if (col >= StreamDeck.buttonCount) {
-            throw new IllegalArgumentException("StreamDeckButton index " + col + " out of bounds, must be <=" + StreamDeck.colCount);
+    private int validate(int index, int max, String name) {
+        if (index >= max) {
+            throw new IllegalArgumentException("StreamDeckButton " + name + " " + index + " out of bounds, must be >= 0, <" + max);
         }
-        if (row >= StreamDeck.rowCount) {
-            throw new IllegalArgumentException("StreamDeckButton row " + row + " out of bounds, must be <=" + StreamDeck.rowCount);
-        }
-        this(calculate_index(row, col), key);
+        return index;
+    }
+
+    private static int calculate_index(int row, int col) {
+        return validate(row * StreamDeck.colCount + col % StreamDeck.colCount, StreamDeck.buttonCount, "index");
     }
 
     public void update() {
         activePublisher.set(activeSupplier.getAsBoolean());
     }
 
-    private static int calculate_index(int row, int col) {
-        return row * 8 + col % 8;
-    }
-
-    public void publishConfig() {
+    private void publishConfig() {
         configPublisher.set(getConfigString());
     }
 

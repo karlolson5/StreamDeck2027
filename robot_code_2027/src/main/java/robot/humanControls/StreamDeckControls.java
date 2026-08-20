@@ -79,13 +79,11 @@ public class StreamDeckControls {
                 new StreamDeckButtonConfig(COColor.kGreen.toString(), COColor.kBlack.toString(), "");
 
         // Use button directly as a trigger, OR
-        streamdeck.addButton(
-                new StreamDeckButton(0, 0, "Shoot from Hub")
-                        .withInactiveConfig(orangeConfig)
-                        .withActiveConfig(activeConfig)
-                        .withText("SHT\nHUB")
-                        .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.HUB)
-        )
+        streamdeck.addButton(0, 0, "Shoot from Hub")
+                .withInactiveConfig(orangeConfig)
+                .withActiveConfig(activeConfig)
+                .withText("SHT\nHUB")
+                .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.HUB)
         .onTrue(Commands.runOnce(() -> {
                         ShooterOverride current = shooterManager.getShooterOverride();
                         if (current == ShooterOverride.HUB) {
@@ -93,17 +91,14 @@ public class StreamDeckControls {
                         } else {
                         shooterManager.setShooterOverride(ShooterOverride.HUB);
                         }
-                }
-        ).ignoringDisable(true));
+                }).ignoringDisable(true));
 
         // Reference button as trigger through `streamdeck`, OR
-        streamdeck.addButton(
-                new StreamDeckButton(0, 1, "Shoot from Tower")
-                        .withInactiveConfig(orangeConfig)
-                        .withActiveConfig(activeConfig)
-                        .withText("SHT\nTWR")
-                        .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TOWER)
-        );
+        streamdeck.addButton(0, 1, "Shoot from Tower")
+                .withInactiveConfig(orangeConfig)
+                .withActiveConfig(activeConfig)
+                .withText("SHT\nTWR")
+                .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TOWER);
 
         streamdeck.button("Shoot from Tower")
                 .onTrue(Commands.runOnce(() -> {
@@ -113,17 +108,14 @@ public class StreamDeckControls {
                         } else {
                         shooterManager.setShooterOverride(ShooterOverride.TOWER);
                         }
-                })
-                .ignoringDisable(true));
+                }).ignoringDisable(true));
 
         // use StreamDeckButton object as a Trigger (it is one)
-        StreamDeckButton shootFromTrenchButton = streamdeck.addButton(
-                new StreamDeckButton(0, 2, "Shoot from Trench")
-                        .withInactiveConfig(orangeConfig)
-                        .withActiveConfig(activeConfig)
-                        .withText("SHT\nTCH")
-                        .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TRENCH)
-        );
+        StreamDeckButton shootFromTrenchButton = streamdeck.addButton(0, 2, "Shoot from Trench")
+                .withInactiveConfig(orangeConfig)
+                .withActiveConfig(activeConfig)
+                .withText("SHT\nTCH")
+                .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.TRENCH);
 
         shootFromTrenchButton.onTrue(Commands.runOnce(() -> {
                         ShooterOverride current = shooterManager.getShooterOverride();
@@ -132,30 +124,26 @@ public class StreamDeckControls {
                         } else {
                         shooterManager.setShooterOverride(ShooterOverride.TRENCH);
                         }
-                })
-                .ignoringDisable(true));
+                }).ignoringDisable(true));
 
         // Stream Deck buttons are just normal triggers, so chain them like any other trigger
-        streamdeck.addButton(
-                new StreamDeckButton(0, 7, "Reset Gyro 1")
+        streamdeck.addButton(0, 7, "Reset Gyro 1")
+                .withInactiveConfig(tealConfig)
+                .withActiveConfig(activeConfig)
+                .withText("Gyr")
+        .and(
+                streamdeck.addButton(1, 7, "Reset Gyro 2")
                         .withInactiveConfig(tealConfig)
                         .withActiveConfig(activeConfig)
-                        .withText("Gyr"))
-        .and(
-                streamdeck.addButton(
-                        new StreamDeckButton(1, 7, "Reset Gyro 2")
-                                .withInactiveConfig(tealConfig)
-                                .withActiveConfig(activeConfig)
-                                .withText("Gyr"));
+                        .withText("Gyr")
         ).onTrue(Commands.runOnce(() -> drive.resetOdometry(
                 new Pose2d(RobotState.getGlobalPose().getTranslation(), Rotation2d.kZero)))
         .ignoringDisable(true));
 
-        streamdeck.addButton(
-                new StreamDeckButton(3, 2, "Intake Roller FWD")
-                        .withInactiveConfig(blueConfig)
-                        .withActiveConfig(activeConfig)
-                        .withText("Int\nFWD")
-        ).whileTrue(intakeRoller.intakeREVCommand());
+        streamdeck.addButton(3, 2, "Intake Roller FWD")
+                .withInactiveConfig(blueConfig)
+                .withActiveConfig(activeConfig)
+                .withText("Int\nFWD")
+        .whileTrue(intakeRoller.intakeREVCommand());
     }
 }

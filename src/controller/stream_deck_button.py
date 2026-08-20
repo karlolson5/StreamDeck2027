@@ -29,19 +29,16 @@ class ButtonConfig:
         self.inactive_text = inactive_text or ""
         self.cache: int = 0
 
+    def _key(self):
+        return (self.key, self.active_background, self.inactive_background,
+                self.active_foreground, self.inactive_foreground,
+                self.active_text, self.inactive_text)
+
     def __hash__(self):
-        return hash(
-            self.key.__hash__()+
-            self.active_background.__hash__()+
-            self.inactive_background.__hash__()+
-            self.active_foreground.__hash__()+
-            self.inactive_foreground.__hash__()+
-            self.active_text.__hash__()+
-            self.inactive_text.__hash__()
-        )
+        return hash(self._key())
 
     def __eq__(self, other):
-        return self.__hash__() == other.__hash__()
+        return isinstance(other, ButtonConfig) and self._key() == other._key()
 
 class StreamDeckButton:
     def __init__(self, controller: StreamDeckController, index: int, key: str, config_supplier: Callable[[], ButtonConfig], active_supplier: Callable[[], bool]):
