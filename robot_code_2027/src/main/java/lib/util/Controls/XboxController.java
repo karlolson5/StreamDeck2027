@@ -120,10 +120,11 @@ public class XboxController extends CommandGenericHID {
     }
 
     public Command rumbleCommand(RumbleType rumbleType, double intensity, double duration) {
-        // TODO: write with commandsv3
-        return Commands.runOnce(() -> this.setRumble(rumbleType, intensity))
-        .andThen(new WaitCommand(duration))
-        .andThen(Commands.runOnce(() -> this.setRumble(rumbleType, 0.0)));
+        return Command.noRequirements(coroutine -> {
+            this.setRumble(rumbleType, intensity);
+            coroutine.waitUntilElapsed(duration);
+            this.setRumble(rumbleType, 0.0);
+        }).withName("Controller"+getPort()+"Rumble");
     }
 }
 
