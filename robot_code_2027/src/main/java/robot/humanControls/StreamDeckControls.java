@@ -70,13 +70,13 @@ public class StreamDeckControls {
 
     private void configureStreamdeckBindings() {
         StreamDeckButtonConfig orangeConfig =
-                new StreamDeckButtonConfig(COColor.kCOOrangePure.toString(), COColor.kBlack.toString(), "");
+                new StreamDeckButtonConfig(COColor.kCOOrangePure, COColor.kBlack);
         StreamDeckButtonConfig tealConfig =
-                new StreamDeckButtonConfig(COColor.kCOTealPure.toString(), COColor.kWhite.toString(), "");
+                new StreamDeckButtonConfig(COColor.kCOTealPure, COColor.kWhite);
         StreamDeckButtonConfig blueConfig =
-                new StreamDeckButtonConfig(COColor.kBlue.toString(), COColor.kWhite.toString(), "");
+                new StreamDeckButtonConfig(COColor.kBlue, COColor.kWhite);
         StreamDeckButtonConfig activeConfig =
-                new StreamDeckButtonConfig(COColor.kGreen.toString(), COColor.kBlack.toString(), "");
+                new StreamDeckButtonConfig(COColor.kGreen, COColor.kBlack);
 
         // Use button directly as a trigger, OR
         streamdeck.addButton(0, 0, "Shoot from Hub")
