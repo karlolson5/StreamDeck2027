@@ -33,7 +33,7 @@ public class StreamDeckButton extends Trigger {
 
     StreamDeckButton(int index, String key) {
         this(
-            validate(index,StreamDeck.buttonCount, "index"),
+            index,
             key,
             NetworkTableInstance.getDefault()
                 .getBooleanTopic("StreamDeck/" + key)
@@ -68,17 +68,6 @@ public class StreamDeckButton extends Trigger {
 
             return connectedSubscriber.get() && (sawPress || currentlyHeld);
         };
-    }
-
-    private int validate(int index, int max, String name) {
-        if (index >= max) {
-            throw new IllegalArgumentException("StreamDeckButton " + name + " " + index + " out of bounds, must be >= 0, <" + max);
-        }
-        return index;
-    }
-
-    private static int calculate_index(int row, int col) {
-        return validate(row * StreamDeck.colCount + col % StreamDeck.colCount, StreamDeck.buttonCount, "index");
     }
 
     public void update() {
@@ -240,10 +229,5 @@ public class StreamDeckButton extends Trigger {
         sb.append("$&$");
         sb.append(inactive_text);
         return sb.toString();
-    }
-
-    void closePublishers() {
-        if (configPublisher != null) configPublisher.close();
-        if (activePublisher != null) activePublisher.close();
     }
 }

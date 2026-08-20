@@ -43,7 +43,7 @@ public class StreamDeck extends VirtualSubsystem {
         return validate(row * colCount + col % colCount, buttonCount, "index");
     }
 
-    private int validate(int index, int max, String name) {
+    private static int validate(int index, int max, String name) {
         if (index >= max) {
             throw new IllegalArgumentException("StreamDeck " + name + " " + index + " out of bounds, must be >= 0, <" + max);
         }
@@ -52,12 +52,7 @@ public class StreamDeck extends VirtualSubsystem {
 
     public StreamDeckButton addButton(int row, int col, String key) {
         int index = calculate_index(row, col);
-        try {
-            verifyAddedButton(index, key);
-        } catch (IllegalArgumentException e) {
-            button.closePublishers();
-            throw e;
-        }
+        verifyAddedButton(index, key);
         button = new StreamDeckButton(index, key);
         buttonSet.add(button);
         return button;
