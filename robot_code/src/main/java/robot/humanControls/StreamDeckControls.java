@@ -108,6 +108,20 @@ public class StreamDeckControls {
                                     }
                                 })
                                 .ignoringDisable(true)));
+        // 2027 below for comparison
+        // streamdeck.addButton(0, 0, "Shoot from Hub")
+        //         .withInactiveConfig(orangeConfig)
+        //         .withActiveConfig(activeConfig)
+        //         .withText("SHT\nHUB")
+        //         .withActiveSupplier(() -> shooterManager.getShooterOverride() == ShooterOverride.HUB)
+        // .onTrue(Commands.runOnce(() -> {
+        //                 ShooterOverride current = shooterManager.getShooterOverride();
+        //                 if (current == ShooterOverride.HUB) {
+        //                 shooterManager.setShooterOverride(ShooterOverride.NONE);
+        //                 } else {
+        //                 shooterManager.setShooterOverride(ShooterOverride.HUB);
+        //                 }
+        //         }).ignoringDisable(true));
 
         streamdeck.addButton(
                 StreamDeckButtonType.CUSTOM,
