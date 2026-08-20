@@ -22,7 +22,7 @@ public class StreamDeckButton extends Trigger {
     private String inactive_text = "";
     private boolean active_set = false;
     private boolean inactive_set = false;
-    private LoggedNetworkBoolean pressed;
+    private BooleanSubscriber pressedSubscriber;
     private BooleanPublisher activePublisher;
     private StringPublisher configPublisher;
     private BooleanSupplier activeSupplier;
@@ -34,13 +34,15 @@ public class StreamDeckButton extends Trigger {
         if (index >= StreamDeck.buttonCount) {
             throw new IllegalArgumentException("StreamDeckButton index " + index + " out of bounds, must be <=" + StreamDeck.buttonCount);
         }
-        this(index, key, new LoggedNetworkBoolean("StreamDeck/" + key, false));
+        this(index, key, NetworkTableInstance.getDefault()
+            .getBooleanTopic("StreamDeck/" + key)
+            .subscribe(false, PubSubOption.sendAll(true), PubSubOption.pollStorage(20)));
     }
 
-    private StreamDeckButton(int index, String key, LoggedNetworkBoolean pressed) {
-        super(connectedAndPressed(pressed));
-        this.pressed = pressed;
-        this.activeSupplier = pressed;
+    private StreamDeckButton(int index, String key, BooleanSubscriber pressedSubscriber) {
+        super(connectedAndPressed(pressedSubscriber));
+        this.pressedSubscriber = pressedSubscriber;
+        this.activeSupplier = pressedSubscriber::get;
         this.index = index;
         this.key = key;
         this.table = StreamDeck.deckTable.getSubTable("Button/" + index);
@@ -48,8 +50,21 @@ public class StreamDeckButton extends Trigger {
         this.activePublisher = table.getBooleanTopic("Active").publish();
     }
 
-    private static BooleanSupplier connectedAndPressed(LoggedNetworkBoolean pressed) {
-        return () -> connectedSubscriber.get() && pressed.get();
+    private static BooleanSupplier connectedAndPressed(BooleanSubscriber pressedSubscriber) {
+        return () -> {
+            boolean sawPress = false;
+            for (boolean pressed : pressedSubscriber.readQueueValues()) {
+                if (pressed) {
+                    sawPress = true;
+                    break;
+                }
+            }
+
+            // Needed for holding to work, since readQueueValues will no longer be true
+            boolean currentlyHeld = pressedSubscriber.get();
+
+            return connectedSubscriber.get() && (sawPress || currentlyHeld);
+        };
     }
 
     public StreamDeckButton(int row, int col, String key) {
