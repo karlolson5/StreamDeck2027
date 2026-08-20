@@ -42,7 +42,7 @@ public class StreamDeckButton extends Trigger {
         this.key = key;
         this.table = StreamDeck.deckTable.getSubTable("Button/" + index);
         this.configPublisher = table.getStringTopic("Appearance").publish();
-        this.activePublisher = table.getBooleanTopic("Selected").publish();
+        this.activePublisher = table.getBooleanTopic("Active").publish();
     }
 
     private static BooleanSupplier connectedAndPressed(LoggedNetworkBoolean pressed) {

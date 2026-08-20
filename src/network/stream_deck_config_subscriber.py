@@ -40,7 +40,7 @@ class StreamDeckConfigSubscriber():
              tbl = self._controller.table.getSubTable(f"Button/{index}")
              self._button_config_sources[index] = (
                   tbl.getStringTopic("Appearance").subscribe(""+"$&$"+""+"$&$"+""+"$&$"+""+"$&$"+""+"$&$"+""+"$&$"+""),
-                  tbl.getBooleanTopic("Selected").subscribe(False) # TODO: update to "Active", requires robot code changes
+                  tbl.getBooleanTopic("Active").subscribe(False) # TODO: update to "Active", requires robot code changes
              )
         self._init_complete = True
     
