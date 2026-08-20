@@ -16,7 +16,7 @@ public class StreamDeckButton {
     private boolean active_set = false;
     private boolean inactive_set = false;
 
-    public StreamDeckButton(int index, String key) {
+    private StreamDeckButton(int index, String key) {
         this.index = index;
         this.key = key;
     }
@@ -158,14 +158,15 @@ public class StreamDeckButton {
         return key;
     }
 
-    public static List<String> getNetworkTableKeys() {
-        List<String> ntKeys = new ArrayList<>();
-        ntKeys.add("Appearance");
-        return ntKeys;
+    public static String getConfigNetworkKey() {
+        return "Appearance";
     }
 
-    public List<String> getDataToPublish() {
-        List<String> dataToPublish = new ArrayList<>();
+    public static String getPressedNetworkKey() {
+        return "Selected";
+    }
+
+    public String getConfigString() {
         StringBuilder sb = new StringBuilder();
         sb.append(key);
         sb.append("$&$");
@@ -180,7 +181,6 @@ public class StreamDeckButton {
         sb.append(active_text);
         sb.append("$&$");
         sb.append(inactive_text);
-        dataToPublish.add(sb.toString());
-        return dataToPublish;
+        return sb.toString();
     }
 }
