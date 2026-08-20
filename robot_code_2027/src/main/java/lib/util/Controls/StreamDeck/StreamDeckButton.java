@@ -27,19 +27,25 @@ public class StreamDeckButton extends Trigger {
     private BooleanSupplier activeSupplier;
     private NetworkTable table;
 
+    private static final BooleanSubscriber connectedSubscriber = StreamDeck.deckTable.getBooleanTopic("Connected").subscribe(false);
+
     private StreamDeckButton(int index, String key) {
-        this(index, key, new LoggedNetworkBoolean("StreamDeck/" + key));
+        this(index, key, new LoggedNetworkBoolean("StreamDeck/" + key, false));
     }
 
     private StreamDeckButton(int index, String key, LoggedNetworkBoolean pressed) {
-        super(pressed::get);
+        super(connectedAndPressed(pressed));
         this.pressed = pressed;
         this.activeSupplier = pressed;
         this.index = index;
         this.key = key;
-        this.table = NetworkTableInstance.getDefault().getTable("StreamDeck").getSubTable("Button/" + index);
+        this.table = StreamDeck.deckTable.getSubTable("Button/" + index);
         this.configPublisher = table.getStringTopic("Appearance").publish();
         this.activePublisher = table.getBooleanTopic("Selected").publish();
+    }
+
+    private static BooleanSupplier connectedAndPressed(LoggedNetworkBoolean pressed) {
+        return () -> connectedSubscriber.get() && pressed.get();
     }
 
     public StreamDeckButton(int row, int col, String key) {
@@ -54,7 +60,7 @@ public class StreamDeckButton extends Trigger {
         return row * 8 + col % 8;
     }
 
-    private void publishConfig() {
+    public void publishConfig() {
         configPublisher.set(getConfigString());
     }
 
@@ -209,5 +215,10 @@ public class StreamDeckButton extends Trigger {
         sb.append("$&$");
         sb.append(inactive_text);
         return sb.toString();
+    }
+
+    void closePublishers() {
+        if (configPublisher != null) configPublisher.close();
+        if (activePublisher != null) activePublisher.close();
     }
 }

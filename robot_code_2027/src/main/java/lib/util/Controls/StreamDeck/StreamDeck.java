@@ -7,6 +7,8 @@ import java.util.Objects;
 import frc.lib.util.VirtualSubsystem;
 
 public class StreamDeck extends VirtualSubsystem {
+    static final NetworkTable deckTable = NetworkTableInstance.getDefault().getTable("StreamDeck");
+
     private Set<StreamDeckButton> buttonSet = new HashSet<>();
 
     @Override
@@ -29,7 +31,12 @@ public class StreamDeck extends VirtualSubsystem {
     }
 
     public StreamDeckButton addButton(StreamDeckButton button) {
-        verifyAddedButton(button);
+        try {
+            verifyAddedButton(button);
+        } catch (IllegalArgumentException e) {
+            button.closePublishers();
+            throw e;
+        }
         buttonSet.add(button);
         button.publishConfig();
         return button;
