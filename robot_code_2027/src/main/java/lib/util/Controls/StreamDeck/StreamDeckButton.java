@@ -28,27 +28,33 @@ public class StreamDeckButton extends Trigger {
     private NetworkTable table;
 
     private StreamDeckButton(int index, String key, BooleanSupplier activeSupplier) {
-        pressed = new LoggedNetworkBoolean("StreamDeck/" + key);
+        this(index, key, activeSupplier, new LoggedNetworkBoolean("StreamDeck/" + key));
+    }
+
+    private StreamDeckButton(int index, String key, BooleanSupplier activeSupplier, LoggedNetworkBoolean pressed) {
+        super(pressed::get);
+        this.pressed = pressed;
         this.activeSupplier = activeSupplier;
-        super(pressed);
-        table = NetworkTableInstance.getDefault()
-            .getTable("StreamDeck").getSubTable("Button/" + index);
-        configPublisher = table.getStringTopic("Appearance").publish();
-        activePublisher = talbe.getStringTopic("Selected").publish();
         this.index = index;
         this.key = key;
+        this.table = NetworkTableInstance.getDefault().getTable("StreamDeck").getSubTable("Button/" + index);
+        this.configPublisher = table.getStringTopic("Appearance").publish();
+        this.activePublisher = table.getBooleanTopic("Selected").publish();
     }
 
     private StreamDeckButton(int index, String key) {
-        pressed = new LoggedNetworkBoolean("StreamDeck/" + key);
-        activeSupplier = pressed;
-        super(pressed);
-        table = NetworkTableInstance.getDefault()
-            .getTable("StreamDeck").getSubTable("Button/" + index);
-        configPublisher = table.getStringTopic("Appearance").publish();
-        activePublisher = talbe.getStringTopic("Selected").publish();
+        this(index, key, activeSupplier, new LoggedNetworkBoolean("StreamDeck/" + key));
+    }
+
+    private StreamDeckButton(int index, String key, LoggedNetworkBoolean pressed) {
+        super(pressed::get);
+        this.pressed = pressed;
+        this.activeSupplier = pressed;
         this.index = index;
         this.key = key;
+        this.table = NetworkTableInstance.getDefault().getTable("StreamDeck").getSubTable("Button/" + index);
+        this.configPublisher = table.getStringTopic("Appearance").publish();
+        this.activePublisher = table.getBooleanTopic("Selected").publish();
     }
 
     public StreamDeckButton(int row, int col, String key) {
