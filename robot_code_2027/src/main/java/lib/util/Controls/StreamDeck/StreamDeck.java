@@ -5,6 +5,8 @@ import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.Objects;
 import frc.lib.util.VirtualSubsystem;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 public class StreamDeck extends VirtualSubsystem {
     static final NetworkTable deckTable = NetworkTableInstance.getDefault().getTable("StreamDeck");
