@@ -2,7 +2,7 @@ package frc.lib.util.Controls;
 import org.wpilib.command3.button.CommandGamepad;
 import org.wpilib.command3.Scheduler;
 
-public class XboxController extends CommandGenericHID {
+public class XboxController {
     private final CommandGamepad gamepad;
     
     public XboxController(Scheduler scheduler, int port) {
@@ -14,6 +14,7 @@ public class XboxController extends CommandGenericHID {
         this.gamepad = new CommandGamepad(port);
     }
 
+    // Renaming face buttons
     public Trigger a() {
         return gamepad.southFace();
     }
@@ -119,12 +120,84 @@ public class XboxController extends CommandGenericHID {
         return gamepad.dpadUp(loop);
     }
 
+    // Directly from CommandGenericHID, exist on Xbox Controller
+    public Trigger axisGreaterThan(int axis, double threshold) {
+        return gamepad.axisGreaterThan(axis, threshold);
+    }
+    public Trigger axisGreaterThan(int axis, double threshold, EventLoop loop) {
+        return gamepad.axisGreaterThan(axis, threshold, loop);
+    }
+    public Trigger axisLessThan(int axis, double threshold) {
+        return gamepad.axisLessThan(axis, threshold);
+    }
+    public Trigger axisLessThan(int axis, double threshold, EventLoop loop) {
+        return gamepad.axisLessThan(axis, threshold, loop);
+    }
+    public Trigger axisMagnitudeGreaterThan(int axis, double threshold) {
+        return gamepad.axisMagnitudeGreaterThan(axis, threshold);
+    }
+    public Trigger axisMagnitudeGreaterThan(int axis, double threshold, EventLoop loop) {
+        return gamepad.axisMagnitudeGreaterThan(axis, threshold, loop);
+    }
+    public Trigger button(int button) {
+        return gamepad.button(button);
+    }
+    public Trigger button(int button, EventLoop loop) {
+        return gamepad.button(button, loop);
+    }
+    public GenericHID getHID() {
+        return gamepad.getHID();
+    }
+    public double getRawAxis(int axis) {
+        return gamepad.getRawAxis(axis);
+    }
+    public boolean isConnected() {
+        return gamepad.isConnected();
+    }
+    public Trigger pov(int pov, POVDirection angle, EventLoop loop) {
+        return gamepad.pov(pov, angle, loop);
+    }
+    public Trigger pov(POVDirection angle) {
+        return gamepad.pov(angle);
+    }
+    public Trigger povCenter() {
+        return gamepad.povCenter();
+    }
+    public Trigger povDown() {
+        return gamepad.povDown();
+    }
+    public Trigger povDownLeft() {
+        return gamepad.povDownLeft();
+    }
+    public Trigger povDownRight() {
+        return gamepad.povDownRight();
+    }
+    public Trigger povLeft() {
+        return gamepad.povLeft();
+    }
+    public Trigger povRight() {
+        return gamepad.povRight();
+    }
+    public Trigger povUp() {
+        return gamepad.povUp();
+    }
+    public Trigger povUpLeft() {
+        return gamepad.povUpLeft();
+    }
+    public Trigger povUpRight() {
+        return gamepad.povUpRight();
+    }
+    public void setRumble(RumbleType type, double value) {
+        gamepad.setRumble(type, value);
+    }
+
+    // rumble command
     public Command rumbleCommand(RumbleType rumbleType, double intensity, double duration) {
         return Command.noRequirements(coroutine -> {
-            this.setRumble(rumbleType, intensity);
+            setRumble(rumbleType, intensity);
             coroutine.waitUntilElapsed(duration);
-            this.setRumble(rumbleType, 0.0);
-        }).withName("Controller"+getPort()+"Rumble");
+            setRumble(rumbleType, 0.0);
+        }).withName("Controller"+getPort()+"_Rumble");
     }
 }
 
