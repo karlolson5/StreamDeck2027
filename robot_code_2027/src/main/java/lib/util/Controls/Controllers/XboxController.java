@@ -53,6 +53,12 @@ public class XboxController {
     public Trigger back(EventLoop loop) {
         return gamepad.back(loop);
     }
+    public Trigger xbox() {
+        return gamepad.guide();
+    }
+    public Trigger xbox(EventLoop loop) {
+        return gamepad.guide(loop);
+    }
     public Trigger leftBumper() {
         return gamepad.leftBumper();
     }
