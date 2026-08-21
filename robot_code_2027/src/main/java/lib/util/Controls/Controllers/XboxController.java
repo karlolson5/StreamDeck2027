@@ -1,6 +1,12 @@
 package frc.lib.util.Controls;
 import org.wpilib.command3.button.CommandGamepad;
 import org.wpilib.command3.Scheduler;
+import org.wpilib.command3.Trigger;
+import org.wpilib.command3.Command;
+import org.wpilib.event.EventLoop;
+import org.wpilib.driverstation.GenericHID.RumbleType;
+import org.wpilib.driverstation.POVDirection;
+import org.wpilib.driverstation.Gamepad;
 
 public class XboxController {
     private final CommandGamepad gamepad;
@@ -151,7 +157,7 @@ public class XboxController {
     public Trigger button(int button, EventLoop loop) {
         return gamepad.button(button, loop);
     }
-    public GenericHID getHID() {
+    public Gamepad getHID() {
         return gamepad.getHID();
     }
     public double getRawAxis(int axis) {
@@ -197,13 +203,18 @@ public class XboxController {
         gamepad.setRumble(type, value);
     }
 
+    // pass port through
+    public int getPort() {
+        return getHID().getPort();
+    }
+
     // rumble command
     public Command rumbleCommand(RumbleType rumbleType, double intensity, double duration) {
         return Command.noRequirements(coroutine -> {
             setRumble(rumbleType, intensity);
             coroutine.waitUntilElapsed(duration);
             setRumble(rumbleType, 0.0);
-        }).withName("Controller"+getPort()+"_Rumble");
+        }).withName("XboxController"+getPort()+"_Rumble");
     }
 }
 
