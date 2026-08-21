@@ -69,10 +69,10 @@ public class PS4Controller {
     public Trigger share(EventLoop loop) {
         return gamepad.back(loop);
     }
-    public Trigger ps() {
+    public Trigger PS() {
         return gamepad.guide();
     }
-    public Trigger ps(EventLoop loop) {
+    public Trigger PS(EventLoop loop) {
         return gamepad.guide(loop);
     }
     public Trigger L1() {
