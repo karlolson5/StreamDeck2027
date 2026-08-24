@@ -1,60 +1,39 @@
-
 package frc.lib.util.Controls.ElasticButton;
 
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
+import edu.wpi.first.networktables.NetworkTable;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-public class ElasticButton {
+public class ElasticTab {
+    private Map<String, ElasticButton> buttons = new LinkedHashMap<>();
+    // private List<String> tunables = new ArrayList<>();
+    private NetworkTable table;
 
-    private String key;
-    private boolean defaultValue;
-    private Trigger trigger;
-    private NetworkTableEntry entry;
-
-    public ElasticButton(ElasticTab parent, String key, boolean defaultValue) {
-        this.key = key;
-        this.defaultValue = defaultValue;
-        entry = parent.getTable().getEntry(key);
-        entry.setBoolean(defaultValue);
-        trigger = new Trigger(() -> entry.getBoolean(defaultValue));
+    public ElasticTab(ElasticDashboard parent, String key) {
+        table = parent.getTable().getSubTable(key);
     }
 
-    public String getKey() {
-        return key;
+    public ElasticButton addButton(String key) {
+        ElasticButton button = new ElasticButton(this, key, false);
+        buttons.put(key, button);
+        return button;
     }
 
-    public boolean getDefaultValue() {
-        return defaultValue;
+    public ElasticButton addButton(String key, boolean defaultValue) {
+        ElasticButton button = new ElasticButton(this, key, defaultValue);
+        buttons.put(key, button);
+        return button;
     }
 
-    public void setFalse() {
-        entry.setBoolean(false);
+    public NetworkTable getTable() {
+        return table;
     }
 
-    public Trigger getTrigger() {
-        return trigger;
+    public ElasticButton getButton(String key) {
+        return buttons.get(key);
     }
 
-    public void setupWhileHeldCommand(Command commandWhileHeld) {
-        setupWhileHeldCommand(commandWhileHeld, Commands.none());
-    }
-
-    public void setupWhileHeldCommand(Command commandWhileHeld, Command commandOnFalse) {
-        trigger.whileTrue(commandWhileHeld);
-        trigger.onFalse(commandOnFalse);
-    }
-
-    public void setupOnPressCommand(Command command) {
-        trigger.onTrue(command.alongWith(new InstantCommand(() -> entry.setBoolean(false)))
-                .withName(command.getName()));
-    }
-
-    public void setupOnPressCommandIgnoringDisabled(Command command) {
-        trigger.onTrue(command.alongWith(new InstantCommand(() -> entry.setBoolean(false)))
-                .ignoringDisable(true)
-                .withName(command.getName()));
+    public Map<String, ElasticButton> getButtons() {
+        return buttons;
     }
 }
