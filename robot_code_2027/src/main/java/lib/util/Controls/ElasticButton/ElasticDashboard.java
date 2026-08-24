@@ -13,8 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import org.wpilib.command3.Command;
 
 /**
  * Helper to generate an Elastic dashboard layout JSON from the registered tabs and subsystems.
@@ -51,7 +50,8 @@ public class ElasticDashboard {
     }
 
     public Command generateDashboardJsonCommand() {
-        return Commands.runOnce(this::generateDashboardJson).ignoringDisable();
+        return Command.noRequirements(coroutine -> generateDashboardJson())
+                .withName("GenerateDashboardJsonCommand");
     }
 
     /**
