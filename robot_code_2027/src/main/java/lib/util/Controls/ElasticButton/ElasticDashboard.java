@@ -44,12 +44,8 @@ public class ElasticDashboard {
         return tab;
     }
 
-    public NetworkTable getTable() {
+    NetworkTable getTable() {
         return table;
-    }
-
-    public ElasticTab getTab(String key) {
-        return tabs.get(key);
     }
 
     public Command generateDashboardJsonCommand() {
@@ -61,7 +57,7 @@ public class ElasticDashboard {
      * This method is defensive and will skip copying Teleoperated/Cameras if the source
      * layout isn't available.
      */
-    public void generateDashboardJson() {
+    private void generateDashboardJson() {
         final double gridSize = 96.0;
 
         // Try to read the existing dashboard layout so we can extract Teleoperated and Cameras
@@ -101,8 +97,7 @@ public class ElasticDashboard {
             int bIndex = 0;
             int nButtons = tab.getButtons().size();
 
-            for (Map.Entry<String, ElasticButton> buttonEntry : tab.getButtons().entrySet()) {
-                String buttonName = buttonEntry.getKey();
+            for (String buttonName : tab.getButtons()) {
                 if (!firstContainer) t.append(",\n");
 
                 int col = bIndex / MAX_BUTTON_ROWS;

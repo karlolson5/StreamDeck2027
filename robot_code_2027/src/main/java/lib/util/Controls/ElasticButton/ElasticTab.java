@@ -1,12 +1,12 @@
 package frc.lib.util.Controls.ElasticButton;
 
 import edu.wpi.first.networktables.NetworkTable;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 public class ElasticTab {
-    private Map<String, ElasticButton> buttons = new LinkedHashMap<>();
+    private Set<String> buttons = new HashSet<>();
     private NetworkTable table;
 
     public ElasticTab(ElasticDashboard parent, String key) {
@@ -14,16 +14,13 @@ public class ElasticTab {
     }
 
     public Trigger addButton(String key) {
-        ElasticButton button = new ElasticButton(this, key, false);
-        buttons.put(key, button);
-        return button;
+        entry = table.getEntry(key);
+        entry.setBoolean(false);
+        buttons.add(key);
+        return new Trigger(() -> entry.getBoolean(defaultValue));
     }
 
-    public NetworkTable getTable() {
-        return table;
-    }
-
-    public Map<String, ElasticButton> getButtons() {
+    public Set<String> getButtons() {
         return buttons;
     }
 }
