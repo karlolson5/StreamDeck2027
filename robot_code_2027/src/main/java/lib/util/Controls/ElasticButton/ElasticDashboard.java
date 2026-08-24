@@ -52,6 +52,10 @@ public class ElasticDashboard {
         return tabs.get(key);
     }
 
+    public Command generateDashboardJsonCommand() {
+        return Commands.runOnce(this::generateDashboardJson).ignoringDisable();
+    }
+
     /**
      * Generate the dashboard JSON and write it to dashboard/elastic-layout-generated.json.
      * This method is defensive and will skip copying Teleoperated/Cameras if the source

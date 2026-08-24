@@ -109,86 +109,87 @@ public class ElasticTabs {
 
     private void buildIntakeTab() {
         String key = "Intake";
-        ElasticTab tab = dashboard.addTab(key, container.getIntakeRoller(), container.getIntakePivot());
+        ElasticTab tab = dashboard.addTab(key, intakeRoller, intakePivot);
 
         // Configure the while-held behavior
         tab.addButton("Roller Forward (While Held)")
-                .setupWhileHeldCommand(intakeRoller.intakeFWDCommand(), intakeRoller.intakeSTOPCommand());
+                .whileTrue(intakeRoller.intakeFWDCommand()).onFalse(intakeRoller.intakeSTOPCommand());
         tab.addButton("Roller Reverse (While Held)")
-                .setupWhileHeldCommand(intakeRoller.intakeREVCommand(), intakeRoller.intakeSTOPCommand());
+                .whileTrue(intakeRoller.intakeREVCommand()).onFalse(intakeRoller.intakeSTOPCommand());
 
         tab.addButton("Pivot Voltage Up (While Held)")
-                .setupWhileHeldCommand(intakePivot.pivotVoltageUp(), intakePivot.pivotStopCommand());
+                .whileTrue(intakePivot.pivotVoltageUp()).onFalse(intakePivot.pivotStopCommand());
         tab.addButton("Pivot Voltage Down (While Held)")
-                .setupWhileHeldCommand(intakePivot.pivotVoltageDown(), intakePivot.pivotStopCommand());
-        tab.addButton("Pivot Stow (When Pressed)").setupOnPressCommand(intakePivot.manualStowCommand());
-        tab.addButton("Pivot Deployed Position (When Pressed)").setupOnPressCommand(intakePivot.manualDeployCommand());
-        tab.addButton("Pivot Position Command (When Pressed)").setupOnPressCommand(intakePivot.pivotPositionControl());
+                .whileTrue(intakePivot.pivotVoltageDown()).onFalse(intakePivot.pivotStopCommand());
+        tab.addButton("Pivot Stow (When Pressed)").onTrue(intakePivot.manualStowCommand());
+        tab.addButton("Pivot Deployed Position (When Pressed)").onTrue(intakePivot.manualDeployCommand());
+        tab.addButton("Pivot Position Command (When Pressed)").onTrue(intakePivot.pivotPositionControl());
 
-        tab.addButton("STOW (When Pressed)").setupOnPressCommand(intakeManager.stowIntake());
-        tab.addButton("STOW SLOWLY (When Pressed)").setupOnPressCommand(intakeManager.stowIntakeSlowly());
-        tab.addButton("INTAKE (When Pressed)").setupOnPressCommand(intakeManager.deployIntake());
-        tab.addButton("DEPLOY (When Pressed)").setupOnPressCommand(intakeManager.deployIntake());
+        tab.addButton("STOW (When Pressed)").onTrue(intakeManager.stowIntake());
+        tab.addButton("STOW SLOWLY (When Pressed)").onTrue(intakeManager.stowIntakeSlowly());
+        tab.addButton("INTAKE (When Pressed)").onTrue(intakeManager.deployIntake());
+        tab.addButton("DEPLOY (When Pressed)").onTrue(intakeManager.deployIntake());
 
-        tab.addButton("Print Intake Absolute Rotations")
-                .setupOnPressCommandIgnoringDisabled(intakePivot.printAbsoluteRotations());
+        tab.addButton("Print Intake Absolute Rotations").onTrue(intakePivot.printAbsoluteRotations());
     }
 
     private void buildHopperTab() {
         String key = "Hopper";
-        ElasticTab tab = dashboard.addTab(key, container.getHopper());
+        ElasticTab tab = dashboard.addTab(key, hopper);
 
         tab.addButton("Hopper Voltage FWD (While Held)")
-                .setupWhileHeldCommand(hopper.hopperSTARTCommand(), hopper.hopperSTOPCommand());
+                .whileTrue(hopper.hopperSTARTCommand()).onFalse(hopper.hopperSTOPCommand());
         tab.addButton("Hopper Voltage REV (While Held)")
-                .setupWhileHeldCommand(hopper.hopperREVCommand(), hopper.hopperSTOPCommand());
+                .whileTrue(hopper.hopperREVCommand()).onFalse(hopper.hopperSTOPCommand());
     }
 
     private void buildShooterTab() {
         String key = "Shooter";
-        ElasticTab tab = dashboard.addTab(key, container.getHood(), container.getShooter());
+        ElasticTab tab = dashboard.addTab(key, hood, shooter);
 
         tab.addButton("Hood Voltage UP Command (While Held)")
-                .setupWhileHeldCommand(hood.hoodVoltageUP(), hood.hoodVoltageSTOP());
+                .whileTrue(hood.hoodVoltageUP()).onFalse(hood.hoodVoltageSTOP());
         tab.addButton("Hood Voltage DOWN Command (While Held)")
-                .setupWhileHeldCommand(hood.hoodVoltageDOWN(), hood.hoodVoltageSTOP());
+                .whileTrue(hood.hoodVoltageDOWN()).onFalse(hood.hoodVoltageSTOP());
         tab.addButton("Hood Max Up (When Pressed)")
-                .setupOnPressCommand(hood.positionSetpointCommand(() -> HoodConstants.kForwardLimitRads));
+                .onTrue(hood.positionSetpointCommand(() -> HoodConstants.kForwardLimitRads));
         tab.addButton("Hood Max Down (When Pressed)")
-                .setupOnPressCommand(hood.positionSetpointCommand(() -> HoodConstants.kHoodStowedAngleRadians));
-        tab.addButton("Move Hood Position (When Pressed)").setupOnPressCommand(hood.hoodPositionControl());
+                .onTrue(hood.positionSetpointCommand(() -> HoodConstants.kHoodStowedAngleRadians));
+        tab.addButton("Move Hood Position (When Pressed)").onTrue(hood.hoodPositionControl());
         tab.addButton("Set Current Hood Position as Zero (WhenPressed)")
-                .setupOnPressCommand(hood.setHoodZeroCommand().ignoringDisable(true));
-        tab.addButton("Hood Zero Command (When Pressed)").setupOnPressCommand(hood.zeroHoodCommand());
+                .onTrue(hood.setHoodZeroCommand());
+        tab.addButton("Hood Zero Command (When Pressed)").onTrue(hood.zeroHoodCommand());
 
         tab.addButton("Set Hood To Zero")
-                .setupOnPressCommand(Commands.runOnce(() -> hood.setCurrentPosition(HoodConstants.kReverseLimitRads)));
+                .onTrue(Commands.runOnce(() -> hood.setCurrentPosition(HoodConstants.kReverseLimitRads)));
 
         tab.addButton("Set Shooter Torque FOC (While Held)")
-                .setupWhileHeldCommand(shooter.shooterTorqueON(), shooter.shooterSTOP());
+                .whileTrue(shooter.shooterTorqueON()).onFalse(shooter.shooterSTOP());
 
         tab.addButton("Set Shooter Torque FoC Velocity (While Held)")
-                .setupWhileHeldCommand(shooter.shooterTorqueFoCVelocityON(), shooter.shooterSTOP());
+                .whileTrue(shooter.shooterTorqueFoCVelocityON()).onFalse(shooter.shooterSTOP());
 
         tab.addButton("AutoTune Flywheel (While Held)")
-                .setupWhileHeldCommand(
+                .whileTrue(
                         new FlywheelAutoTuneCommand(
                                 shooter,
                                 Robot.isSimulation()
                                         ? FlywheelAutoTuneConfig.forShooterSim()
-                                        : FlywheelAutoTuneConfig.forShooter()),
+                                        : FlywheelAutoTuneConfig.forShooter()))
+                .onFalse(
                         shooter.shooterSTOP());
 
         // tab.addButton("Shooter Max Speed (While Held)")
-        //         .setupWhileHeldCommand(shooter.shooterON(), shooter.shooterSTOP());
+        //         .whileTrue(shooter.shooterON()).onFalse(shooter.shooterSTOP());
         tab.addButton("Shooter Voltage Command (While Held)")
-                .setupWhileHeldCommand(shooter.shooterVoltageON(), shooter.shooterSTOP());
+                .whileTrue(shooter.shooterVoltageON()).onFalse(shooter.shooterSTOP());
         // tab.addButton("Shooting with Lookup Table (While
-        // Held)").setupWhileHeldCommand(shooterManager.startShooting())
+        // Held)").whileTrue(shooterManager.startShooting())
 
         tab.addButton("LUT Tuning (While Held)")
-                .setupWhileHeldCommand(
-                        new ShooterTuningCommand(shooter, hood, shooterManager, feederManager, hopperManager, feeder),
+                .whileTrue(
+                        new ShooterTuningCommand(shooter, hood, shooterManager, feederManager, hopperManager, feeder))
+                .onFalse(
                         Commands.parallel(
                                 shooter.shooterSTOP(),
                                 hood.positionSetpointCommand(() -> HoodConstants.kReverseLimitRads)));
@@ -196,43 +197,44 @@ public class ElasticTabs {
 
     private void buildFeederTab() {
         String key = "Feeder";
-        ElasticTab tab = dashboard.addTab(key, container.getFeeder());
+        ElasticTab tab = dashboard.addTab(key, feeder);
 
         tab.addButton("Feeder Up Velocity torque (While Held)")
-                .setupWhileHeldCommand(feeder.feederVelocityControlUP(), feeder.feederSTOPCommand());
+                .whileTrue(feeder.feederVelocityControlUP()).onFalse(feeder.feederSTOPCommand());
         tab.addButton("Feeder Down Velocity torque (While Held)")
-                .setupWhileHeldCommand(feeder.feederVelocityControlDOWN(), feeder.feederSTOPCommand());
+                .whileTrue(feeder.feederVelocityControlDOWN()).onFalse(feeder.feederSTOPCommand());
         tab.addButton("Feeder Up Voltage (While Held)")
-                .setupWhileHeldCommand(feeder.feederUPCommand(), feeder.feederSTOPCommand());
+                .whileTrue(feeder.feederUPCommand()).onFalse(feeder.feederSTOPCommand());
         tab.addButton("Feeder Down Voltage (While Held)")
-                .setupWhileHeldCommand(feeder.feederDOWNCommand(), feeder.feederSTOPCommand());
+                .whileTrue(feeder.feederDOWNCommand()).onFalse(feeder.feederSTOPCommand());
         tab.addButton("Feeder UP Current (While Held)")
-                .setupWhileHeldCommand(feeder.feederCurrentUPCommand(), feeder.feederSTOPCommand());
+                .whileTrue(feeder.feederCurrentUPCommand()).onFalse(feeder.feederSTOPCommand());
         tab.addButton("Feeder DOWN Current (While Held)")
-                .setupWhileHeldCommand(feeder.feederCurrentDOWNCommand(), feeder.feederSTOPCommand());
+                .whileTrue(feeder.feederCurrentDOWNCommand()).onFalse(feeder.feederSTOPCommand());
 
         tab.addButton("AutoTune Feeder (While Held)")
-                .setupWhileHeldCommand(
+                .whileTrue(
                         new FlywheelAutoTuneCommand(
                                 feeder,
                                 Robot.isSimulation()
                                         ? FlywheelAutoTuneConfig.forShooterSim()
-                                        : FlywheelAutoTuneConfig.forFeeder()),
+                                        : FlywheelAutoTuneConfig.forFeeder()))
+                .onFalse(
                         feeder.feederSTOPCommand());
     }
 
     private void buildBoxTab() {
         String key = "Box";
-        ElasticTab tab = dashboard.addTab(key, container.getBox());
+        ElasticTab tab = dashboard.addTab(key, box);
 
-        tab.addButton("Box Extend Command (While Held)").setupOnPressCommand(box.setExtend());
-        tab.addButton("Box Stow Command (While Held)").setupOnPressCommand(box.setPushingStow());
-        tab.addButton("Box Climb Command (When Pressed)").setupOnPressCommand(box.setClimb());
-        tab.addButton("Box Zero Command (When Pressed)").setupOnPressCommand(box.zeroBoxCommand());
+        tab.addButton("Box Extend Command (While Held)").onTrue(box.setExtend());
+        tab.addButton("Box Stow Command (While Held)").onTrue(box.setPushingStow());
+        tab.addButton("Box Climb Command (When Pressed)").onTrue(box.setClimb());
+        tab.addButton("Box Zero Command (When Pressed)").onTrue(box.zeroBoxCommand());
         tab.addButton("Set Current Box Position To Zero (When Pressed)")
-                .setupOnPressCommand(Commands.runOnce(() -> box.setCurrentPosition(0.0)));
-        tab.addButton("Box Voltage UP Command (While Held)").setupWhileHeldCommand(box.boxUPCommand());
-        tab.addButton("Box Voltage DOWN Command (While Held)").setupWhileHeldCommand(box.boxDOWNCommand());
+                .onTrue(Commands.runOnce(() -> box.setCurrentPosition(0.0)));
+        tab.addButton("Box Voltage UP Command (While Held)").whileTrue(box.boxUPCommand());
+        tab.addButton("Box Voltage DOWN Command (While Held)").whileTrue(box.boxDOWNCommand());
     }
 
     private void buildDriveTab() {
@@ -241,13 +243,13 @@ public class ElasticTabs {
         SwerveRequest.FieldCentric fieldCentricReq =
                 new SwerveRequest.FieldCentric().withDriveRequestType(SwerveModule.DriveRequestType.Velocity);
         // tab.addButton("Characterize
-        // Feedforward").setupWhileHeldCommand(DriveCommands.feedforwardCharacterization(drive));
-        // tab.addButton("Characterize Slip Current").setupWhileHeldCommand(
+        // Feedforward").whileTrue(DriveCommands.feedforwardCharacterization(drive));
+        // tab.addButton("Characterize Slip Current").whileTrue(
         //     Commands.print("running slip current test")
         //     .andThen(DriveCommands.slipCurrentCharacterization(drive)));
         // tab.addButton("Characterize Wheel Radius")
-        //     .setupWhileHeldCommand(DriveCommands.wheelRadiusCharacterization(drive));
-        // tab.addButton("Drive Stop X").setupOnPressCommand(
+        //     .whileTrue(DriveCommands.wheelRadiusCharacterization(drive));
+        // tab.addButton("Drive Stop X").onTrue(
         //     Commands.runOnce(
         //         drive.setControl(
         //             fieldCentricReq
@@ -257,13 +259,14 @@ public class ElasticTabs {
 
         //     );
         tab.addButton("Drive Forward Half Speed (While Held)")
-                .setupWhileHeldCommand(
+                .whileTrue(
                         Commands.run(
                                 () -> drive.setControl(fieldCentricReq
                                         .withVelocityX(0.5 * DriveConstants.kDriveMaxSpeed)
                                         .withVelocityY(0)
                                         .withRotationalRate(0)),
-                                drive),
+                                drive))
+                .onFalse(
                         Commands.run(
                                 () -> drive.setControl(fieldCentricReq
                                         .withVelocityX(0)
@@ -272,13 +275,14 @@ public class ElasticTabs {
                                 drive));
 
         tab.addButton("Drive Turn Clockwise (While Held)")
-                .setupWhileHeldCommand(
+                .whileTrue(
                         Commands.run(
                                 () -> drive.setControl(fieldCentricReq
                                         .withVelocityX(0)
                                         .withVelocityY(0)
                                         .withRotationalRate(0.5 * DriveConstants.kDriveMaxAngularRate)),
-                                drive),
+                                drive))
+                .onFalse(
                         Commands.run(
                                 () -> drive.setControl(fieldCentricReq
                                         .withVelocityX(0)
@@ -287,7 +291,7 @@ public class ElasticTabs {
                                 drive));
 
         tab.addButton("Drive Robot Relative")
-                .setupWhileHeldCommand(drive.joystickDriveRobotRelative(
+                .whileTrue(drive.joystickDriveRobotRelative(
                         () -> -container.getController().getLeftY(),
                         () -> -container.getController().getLeftX(),
                         () -> -container.getController().getRightX()));
@@ -295,7 +299,7 @@ public class ElasticTabs {
         // tab.addButton("Align to hub");
 
         tab.addButton("Reset Pose To Vision")
-                .setupOnPressCommand(Commands.runOnce(
+                .onTrue(Commands.runOnce(
                         () -> {
                             var visionPose = RobotState.getVisionPose(VisionConstants.visionPoseThresholdSeconds);
                             if (visionPose.isPresent()) {
@@ -304,44 +308,39 @@ public class ElasticTabs {
                         },
                         drive));
 
-        tab.addButton("Test Drive To Pose").setupWhileHeldCommand(new DriveToFuelCommand(container));
-        tab.addButton("Toggle rotate in movement direction").setupOnPressCommand(Commands.runOnce(() -> {
+        tab.addButton("Test Drive To Pose").whileTrue(new DriveToFuelCommand(container));
+        tab.addButton("Toggle rotate in movement direction").onTrue(Commands.runOnce(() -> {
             drive.toggleRotateHeading();
         }));
-        tab.addButton("Left Climb").setupWhileHeldCommand(box.setExtend().andThen(drive.autoClimb(ClimbSide.LEFT)));
-        tab.addButton("Right Climb").setupWhileHeldCommand(box.setExtend().andThen(drive.autoClimb(ClimbSide.RIGHT)));
+        tab.addButton("Left Climb").whileTrue(box.setExtend().andThen(drive.autoClimb(ClimbSide.LEFT)));
+        tab.addButton("Right Climb").whileTrue(box.setExtend().andThen(drive.autoClimb(ClimbSide.RIGHT)));
     }
 
     private void buildLedTab() {
         String key = "Led";
         ElasticTab tab = dashboard.addTab(key);
 
-        tab.addButton("Solid Red").setupOnPressCommandIgnoringDisabled(led.commandSolidColor(COColor.kRed));
+        tab.addButton("Solid Red").onTrue(led.commandSolidColor(COColor.kRed));
         tab.addButton("Right Red")
-                .setupOnPressCommandIgnoringDisabled(led.commandSolidColor(COColor.kRed, LedStrip.RIGHT));
-        tab.addButton("Left Yellow")
-                .setupOnPressCommandIgnoringDisabled(led.commandSolidColor(COColor.kYellow, LedStrip.LEFT));
-        tab.addButton("Right Red Left Yellow")
-                .setupOnPressCommandIgnoringDisabled(led.commandSolidColor(COColor.kRed, LedStrip.RIGHT)
+                .onTrue(led.commandSolidColor(COColor.kRed, LedStrip.RIGHT));
+        tab.addButton("Left Yellow").onTrue(led.commandSolidColor(COColor.kYellow, LedStrip.LEFT));
+        tab.addButton("Right Red Left Yellow").onTrue(led.commandSolidColor(COColor.kRed, LedStrip.RIGHT)
                         .andThen(led.commandSolidColor(COColor.kYellow, LedStrip.LEFT)));
-        tab.addButton("Solid Orange").setupOnPressCommandIgnoringDisabled(led.commandSetOrange());
-        tab.addButton("Solid Teal").setupOnPressCommandIgnoringDisabled(led.commandSetTeal());
-        tab.addButton("Blink Red").setupOnPressCommandIgnoringDisabled(led.commandBlinkingState(COColor.kRed, 0.5));
-        tab.addButton("Fire").setupOnPressCommandIgnoringDisabled(led.commandFire());
-        tab.addButton("Rainbow").setupOnPressCommandIgnoringDisabled(led.commandRainbow());
-        tab.addButton("ColorflowCO").setupOnPressCommandIgnoringDisabled(led.commandColorflowCO());
-        tab.addButton("Off").setupOnPressCommandIgnoringDisabled(led.commandOff());
-        tab.addButton("Half Orange")
-                .setupOnPressCommandIgnoringDisabled(led.commandPercentageFull(() -> 0.5, COColor.kCOOrangeLed));
-        tab.addButton("Partial Orange")
-                .setupOnPressCommandIgnoringDisabled(
-                        led.commandSolidColorNumLeds(COColor.kCOOrangeLed, led::getLedsOn));
-        tab.addButton("Larson Blue").setupOnPressCommandIgnoringDisabled(led.commandLarson(COColor.kBlue));
-        tab.addButton("Larson Red").setupOnPressCommandIgnoringDisabled(led.commandLarson(COColor.kRed));
-        tab.addButton("Twinkle Off Blue").setupOnPressCommandIgnoringDisabled(led.commandTwinkle(COColor.kBlue, true));
-        tab.addButton("Twinkle Off Red").setupOnPressCommandIgnoringDisabled(led.commandTwinkle(COColor.kRed, true));
-        tab.addButton("Twinkle Blue").setupOnPressCommandIgnoringDisabled(led.commandTwinkle(COColor.kBlue, false));
-        tab.addButton("Twinkle Red").setupOnPressCommandIgnoringDisabled(led.commandTwinkle(COColor.kRed, false));
+        tab.addButton("Solid Orange").onTrue(led.commandSetOrange());
+        tab.addButton("Solid Teal").onTrue(led.commandSetTeal());
+        tab.addButton("Blink Red").onTrue(led.commandBlinkingState(COColor.kRed, 0.5));
+        tab.addButton("Fire").onTrue(led.commandFire());
+        tab.addButton("Rainbow").onTrue(led.commandRainbow());
+        tab.addButton("ColorflowCO").onTrue(led.commandColorflowCO());
+        tab.addButton("Off").onTrue(led.commandOff());
+        tab.addButton("Half Orange").onTrue(led.commandPercentageFull(() -> 0.5, COColor.kCOOrangeLed));
+        tab.addButton("Partial Orange").onTrue(led.commandSolidColorNumLeds(COColor.kCOOrangeLed, led::getLedsOn));
+        tab.addButton("Larson Blue").onTrue(led.commandLarson(COColor.kBlue));
+        tab.addButton("Larson Red").onTrue(led.commandLarson(COColor.kRed));
+        tab.addButton("Twinkle Off Blue").onTrue(led.commandTwinkle(COColor.kBlue, true));
+        tab.addButton("Twinkle Off Red").onTrue(led.commandTwinkle(COColor.kRed, true));
+        tab.addButton("Twinkle Blue").onTrue(led.commandTwinkle(COColor.kBlue, false));
+        tab.addButton("Twinkle Red").onTrue(led.commandTwinkle(COColor.kRed, false));
     }
 
     private void buildTestTab() {
@@ -349,8 +348,7 @@ public class ElasticTabs {
         ElasticTab tab = dashboard.addTab(key);
 
         tab.addButton("Set Box and Hood to Coast (When Pressed)")
-                .setupOnPressCommand(hood.setCoast().alongWith(box.setCoast()).ignoringDisable(true));
-        tab.addButton("Generate Json")
-                .setupOnPressCommandIgnoringDisabled(Commands.runOnce(dashboard::generateDashboardJson));
+                .onTrue(hood.setCoast().alongWith(box.setCoast()));
+        tab.addButton("Generate Json").onTrue(dashboard.generateDashboardJsonCommand());
     }
 }

@@ -24,36 +24,7 @@ public class ElasticButton {
     public String getKey() {
         return key;
     }
-
-    public boolean getDefaultValue() {
-        return defaultValue;
-    }
-
-    public void setFalse() {
-        entry.setBoolean(false);
-    }
-
     public Trigger getTrigger() {
         return trigger;
-    }
-
-    public void setupWhileHeldCommand(Command commandWhileHeld) {
-        setupWhileHeldCommand(commandWhileHeld, Commands.none());
-    }
-
-    public void setupWhileHeldCommand(Command commandWhileHeld, Command commandOnFalse) {
-        trigger.whileTrue(commandWhileHeld);
-        trigger.onFalse(commandOnFalse);
-    }
-
-    public void setupOnPressCommand(Command command) {
-        trigger.onTrue(command.alongWith(new InstantCommand(() -> entry.setBoolean(false)))
-                .withName(command.getName()));
-    }
-
-    public void setupOnPressCommandIgnoringDisabled(Command command) {
-        trigger.onTrue(command.alongWith(new InstantCommand(() -> entry.setBoolean(false)))
-                .ignoringDisable(true)
-                .withName(command.getName()));
     }
 }
