@@ -17,7 +17,7 @@ public class ElasticTab {
         NetworkTableEntry entry = table.getEntry(key);
         entry.setBoolean(false);
         buttons.add(key);
-        return Trigger(() -> entry.getBoolean(false))
+        return new Trigger(() -> entry.getBoolean(false))
             .onTrue(Commands.runOnce(() -> entry.setBoolean(false)));
     }
 
