@@ -28,7 +28,7 @@ import org.wpilib.command3.Command;
 public class ElasticDashboard {
     private Map<String, ElasticTab> tabs = new LinkedHashMap<>();
     private Map<ElasticTab, ServoMotorSubsystem<?>[]> subsystems = new LinkedHashMap<>();
-    private NetworkTable table;
+    private final NetworkTable table;
 
     public ElasticDashboard() {
         this("Elastic");
@@ -51,7 +51,7 @@ public class ElasticDashboard {
 
     public Command generateDashboardJsonCommand() {
         return Command.noRequirements(coroutine -> generateDashboardJson())
-                .withName("GenerateDashboardJsonCommand");
+                .("GenerateDashboardJsonCommand");
     }
 
     /**

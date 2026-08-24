@@ -23,11 +23,11 @@ public class StreamDeckButton extends Trigger {
     private String inactive_text = "";
     private boolean active_set = false;
     private boolean inactive_set = false;
-    private BooleanSubscriber pressedSubscriber;
-    private BooleanPublisher activePublisher;
-    private StringPublisher configPublisher;
-    private BooleanSupplier activeSupplier;
-    private NetworkTable table;
+    private final BooleanSubscriber pressedSubscriber;
+    private final BooleanPublisher activePublisher;
+    private final StringPublisher configPublisher;
+    private final BooleanSupplier activeSupplier;
+    private final NetworkTable table;
 
     private static final BooleanSubscriber connectedSubscriber = StreamDeck.deckTable.getBooleanTopic("Connected").subscribe(false);
 

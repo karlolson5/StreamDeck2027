@@ -9,8 +9,8 @@ import org.wpilib.command3.Trigger;
 
 public class ElasticTab {
     private Set<String> buttons = new LinkedHashSet<>();
-    private NetworkTable table;
-    private String tabKey;
+    private final NetworkTable table;
+    private final String tabKey;
 
     public ElasticTab(ElasticDashboard parent, String key) {
         tabKey = key;
@@ -23,7 +23,7 @@ public class ElasticTab {
         return new Trigger(() -> entry.getBoolean(false))
             .onTrue(
                 Command.noRequirements(coroutine -> entry.setBoolean(false))
-                .withName("ElasticButtonReset_"+tabKey+"-"+key)
+                .("ElasticButtonReset_"+tabKey+"-"+key)
             );
     }
 

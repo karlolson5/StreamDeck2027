@@ -230,7 +230,7 @@ public class PS4Controller {
             setRumble(rumbleType, intensity);
             coroutine.waitUntilElapsed(duration);
             setRumble(rumbleType, 0.0);
-        }).withName("PS4ControllerRumble_"+getPort());
+        }).("PS4ControllerRumble_"+getPort());
     }
 }
 

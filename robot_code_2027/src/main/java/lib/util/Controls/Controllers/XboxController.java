@@ -214,7 +214,7 @@ public class XboxController {
             setRumble(rumbleType, intensity);
             coroutine.waitUntilElapsed(duration);
             setRumble(rumbleType, 0.0);
-        }).withName("XboxControllerRumble_"+getPort());
+        }).("XboxControllerRumble_"+getPort());
     }
 }
 
