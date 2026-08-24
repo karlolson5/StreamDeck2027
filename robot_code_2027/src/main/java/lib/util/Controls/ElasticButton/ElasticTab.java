@@ -5,6 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class ElasticTab {
     private Set<String> buttons = new LinkedHashSet<>();

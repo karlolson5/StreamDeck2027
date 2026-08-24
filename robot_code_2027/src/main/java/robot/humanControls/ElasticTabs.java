@@ -2,43 +2,24 @@ package frc.robot.humanControls;
 
 import com.ctre.phoenix6.swerve.SwerveModule;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-import edu.wpi.first.wpilibj2.command.Commands;
-import frc.lib.util.COColor;
 import frc.lib.util.Controls.ElasticButton.ElasticDashboard;
 import frc.lib.util.Controls.ElasticButton.ElasticTab;
-import frc.robot.Robot;
 import frc.robot.RobotContainer;
 import frc.robot.RobotState;
-import frc.robot.commands.DriveToFuelCommand;
-import frc.robot.commands.FlywheelAutoTuneCommand;
-import frc.robot.commands.FlywheelAutoTuneConfig;
-import frc.robot.commands.ShooterTuningCommand;
 import frc.robot.subsystems.box.Box;
-import frc.robot.subsystems.drive.Drive;
-import frc.robot.subsystems.drive.DriveConstants;
-import frc.robot.subsystems.drive.DriveConstants.ClimbSide;
-import frc.robot.subsystems.feeder.Feeder;
-import frc.robot.subsystems.feeder.FeederManager;
-import frc.robot.subsystems.hopper.Hopper;
-import frc.robot.subsystems.hopper.HopperManager;
-import frc.robot.subsystems.intake.IntakeManager;
 import frc.robot.subsystems.intake.IntakePivot;
 import frc.robot.subsystems.intake.IntakeRoller;
-import frc.robot.subsystems.led.Led;
-import frc.robot.subsystems.led.LedConstants.LedStrip;
 import frc.robot.subsystems.shooter.Hood;
-import frc.robot.subsystems.shooter.HoodConstants;
-import frc.robot.subsystems.shooter.Shooter;
-import frc.robot.subsystems.shooter.ShooterManager;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionConstants;
 
 public class ElasticTabs {
     private final RobotContainer container;
+    private final RobotState robotState;
 
     private final IntakePivot intakePivot;
     private final IntakeRoller intakeRoller;
     private final IntakeManager intakeManager;
+    private final Hood hood;
+    private final Box box;
 
     private final ElasticDashboard dashboard = new ElasticDashboard();
 
@@ -49,6 +30,8 @@ public class ElasticTabs {
         intakePivot = container.getIntakePivot();
         intakeRoller = container.getIntakeRoller();
         intakeManager = container.getIntakeManager();
+        hood = container.getHood();
+        box = container.getBox();
 
         buildElasticTabs();
     }
