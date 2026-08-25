@@ -2,6 +2,7 @@ from dataclasses import dataclass
 import os
 from matplotlib import font_manager
 import ntcore
+from __future__ import annotations
 
 NT_INSTANCE = nt_instance = ntcore.NetworkTableInstance.create()
 PRESSED_PUBLISH_OPTIONS = ntcore.PubSubOptions(periodic=0.02, sendAll=True)

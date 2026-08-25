@@ -1,14 +1,17 @@
 
 
+from __future__ import annotations
 from collections.abc import Callable
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
 # import cairosvg
 import io
-from controller.stream_deck_controller import StreamDeckController
 import constants as c
 import util.utilities as u
 from StreamDeck.ImageHelpers import PILHelper
 from PIL import Image, ImageDraw, ImageFont
+
+if TYPE_CHECKING:
+    from controller.stream_deck_controller import StreamDeckController
 
 class ButtonConfig:
     def __init__(self,

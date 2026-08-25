@@ -1,3 +1,4 @@
+from __future__ import annotations
 import threading
 import tkinter as tk
 import ctypes
