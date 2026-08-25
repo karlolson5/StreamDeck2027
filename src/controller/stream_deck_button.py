@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from typing import Optional
-import cairosvg
+# import cairosvg
 import io
 from controller.stream_deck_controller import StreamDeckController
 import constants as c
@@ -105,9 +105,10 @@ class StreamDeckButton:
 
     def _create_key_image_from_svg(self, tx: str) -> Optional[Image.Image]:
         try:
-            png_bytes = cairosvg.svg2png(bytestring=tx.encode('utf-8'))
-            image = Image.open(io.BytesIO(png_bytes))
-            return PILHelper.create_scaled_key_image(self.controller._deck, image)
+            raise NotImplementedError
+            # png_bytes = cairosvg.svg2png(bytestring=tx.encode('utf-8'))
+            # image = Image.open(io.BytesIO(png_bytes))
+            # return PILHelper.create_scaled_key_image(self.controller._deck, image)
         except Exception:
             print("The specified code does not form a valid svg")
             return self._warning_image()
