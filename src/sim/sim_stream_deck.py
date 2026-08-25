@@ -24,7 +24,7 @@ class CustomizableGridApp:
 
     def setup_grid_panel(self, key_size: tuple[int, int], key_callbacks: Callable[[int, bool],[]]):
         """Creates the grid matrix layout on the right side."""
-        self.grid_frame = tk.Frame(self.root, padding=10)
+        self.grid_frame = tk.Frame(self.root, padx=10, pady=10)
         self.grid_frame.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         for r in range(self.rows):

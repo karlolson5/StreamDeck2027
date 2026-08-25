@@ -56,6 +56,8 @@ class StreamDeckPublisher(OutputPublisher):
     def _publish_buttons(self):
         for key in self._button_publishers.keys():
             to_publish = self._controller.get_button_by_key(key).get_publish_list()
+            if to_publish:
+                print(f"publishing {to_publish} for {key} to {self._button_publishers[key]}")
             for val in to_publish:
                 self._button_publishers[key].set(val)
             to_publish = self._controller.get_button_by_key(key).clear_publish_list()
@@ -81,8 +83,10 @@ class StreamDeckPublisher(OutputPublisher):
 
         try:
             if self._connected_publisher:
+                self._connected_publisher.set(False)
                 self._connected_publisher.close()
             if self._heartbeat_publisher:
+                self._heartbeat_publisher.set(0)
                 self._heartbeat_publisher.close()
             for pub in self._button_publishers.values():
                 if pub:

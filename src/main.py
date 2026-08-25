@@ -58,11 +58,12 @@ def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
                 deck = decks[0]
                 if not deck.is_visual():
                     continue
-
-                print(f"Creating controller for {deck.deck_type()}")
+                
                 controller.re_init(deck, sub.get_button_config_callables())
                 sub.re_init()
+                controller.re_init(deck, sub.get_button_config_callables())
                 pub.re_init()
+                controller.re_init(deck, sub.get_button_config_callables())
 
                 with controller:
                     pub.send_connected(True)
