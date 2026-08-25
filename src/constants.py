@@ -12,7 +12,7 @@ FONT_FILE = font_manager.findfont(font)
 DEFAULT_ASSETS_PATH = os.path.join(os.path.dirname(__file__), "../assets")
 
 SERVER_IPS = ("10.34.76.2", "127.0.0.1") # Robot IP (10.TE.AM.2) , Sim IP (127.0.0.1)
-MIN_LOOP_TIME_S = 0.25
+MIN_LOOP_TIME_S = 0.02
 
 @dataclass
 class COLORS:

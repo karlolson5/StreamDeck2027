@@ -51,7 +51,9 @@ class StreamDeckButton:
         self.index: int = index
         self.key: str = key
         self.config_supplier: Callable[[], ButtonConfig] = config_supplier
-        self.config: ButtonConfig = self.config_supplier() 
+        self.config: ButtonConfig = self.config_supplier()
+        if self.config.key:
+            self.key = self.config.key
         self.active_supplier: Callable[[], bool] = active_supplier
         self.active: bool = self.active_supplier()
         self.publish_list: list[bool] = []

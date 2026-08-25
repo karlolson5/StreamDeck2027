@@ -41,26 +41,29 @@ class StreamDeckPublisher(OutputPublisher):
         self._init_complete = True
     
     def _update_button_topics(self):
-        current_keys = {b.key for b in self._controller.buttons.values() if b.key}
-        tbl = self._controller.table
+        current = {index: b.key for index, b in self._controller.buttons.items() if b.key}
 
-        for key in list(self._button_publishers.keys()):
-            if key not in current_keys:
-                self._button_publishers[key].close()
-                del self._button_publishers[key]
+        for index in list(self._button_publishers.keys()):
+            pub, key = self._button_publishers[index]
+            if current.get(index) != key:
+                pub.close()
+                del self._button_publishers[index]
 
-        for key in current_keys:
-            if key not in self._button_publishers:
-                self._button_publishers[key] = tbl.getBooleanTopic(key).publish(c.PRESSED_PUBLISH_OPTIONS)
+        for index, key in current.items():
+            if index not in self._button_publishers:
+                tbl = self._controller.table.getSubTable(f"Button/{index}")
+                pub = tbl.getBooleanTopic(key).publish(c.PRESSED_PUBLISH_OPTIONS)
+                self._button_publishers[index] = (pub, key)
 
     def _publish_buttons(self):
-        for key in self._button_publishers.keys():
-            to_publish = self._controller.get_button_by_key(key).get_publish_list()
-            if to_publish:
-                print(f"publishing {to_publish} for {key} to {self._button_publishers[key]}")
+        for index, (pub, key) in self._button_publishers.items():
+            button = self._controller.buttons.get(index)
+            if button is None:
+                continue
+            to_publish = button.get_publish_list()
             for val in to_publish:
-                self._button_publishers[key].set(val)
-            to_publish = self._controller.get_button_by_key(key).clear_publish_list()
+                pub.set(val)
+            button.clear_publish_list()
 
 
     def update(self):
@@ -88,7 +91,7 @@ class StreamDeckPublisher(OutputPublisher):
             if self._heartbeat_publisher:
                 self._heartbeat_publisher.set(0)
                 self._heartbeat_publisher.close()
-            for pub in self._button_publishers.values():
+            for pub, _ in self._button_publishers.values():
                 if pub:
                     pub.close()
         except Exception as e:
