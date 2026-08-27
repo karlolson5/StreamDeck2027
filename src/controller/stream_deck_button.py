@@ -98,11 +98,11 @@ class StreamDeckButton:
             font_fraction = 0.8
             fontsize = 1
             draw = ImageDraw.Draw(image)
-            font = ImageFont.truetype(c.FONT_FILE, fontsize)
+            font = ImageFont.truetype(u.get_font_path(), fontsize)
             l, t, r, b = draw.multiline_textbbox((0,0), tx, font)
             while r-l < font_fraction*image.size[0] and b-t < font_fraction*image.size[1]:
                 fontsize += 1
-                font = ImageFont.truetype(c.FONT_FILE, fontsize)
+                font = ImageFont.truetype(u.get_font_path(), fontsize)
                 l, t, r, b = draw.multiline_textbbox((0,0), tx, font)
 
             draw.multiline_text((image.width/2, image.height/2), tx, fill=fg, font=font, anchor="mm", align="center")

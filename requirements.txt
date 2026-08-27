@@ -1,0 +1,5 @@
+streamdeck
+pillow
+pyntcore
+matplotlib
+# cairosvg

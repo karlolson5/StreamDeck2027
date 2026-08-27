@@ -7,8 +7,7 @@ import ntcore
 NT_INSTANCE = nt_instance = ntcore.NetworkTableInstance.create()
 PRESSED_PUBLISH_OPTIONS = ntcore.PubSubOptions(periodic=0.02, sendAll=True)
 
-font = font_manager.FontProperties(family="Arial")
-FONT_FILE = font_manager.findfont(font)
+FONT = "Roboto-Regular.ttf"
 DEFAULT_ASSETS_PATH = os.path.join(os.path.dirname(__file__), "../assets")
 
 SERVER_IPS = ("10.34.76.2", "127.0.0.1") # Robot IP (10.TE.AM.2) , Sim IP (127.0.0.1)
