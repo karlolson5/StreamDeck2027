@@ -4,6 +4,9 @@ on:
   release:
     types: [published] # Triggers automatically when you hit "Publish Release" on GitHub
 
+permissions:
+  contents: write
+
 jobs:
   build-and-release:
     runs-on: windows-latest
@@ -40,4 +43,4 @@ jobs:
       with:
         files: dist/StreamDeck2027.exe
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Automatically provided by GitHub, no setup needed
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
