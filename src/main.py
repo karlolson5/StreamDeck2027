@@ -16,6 +16,7 @@ from network.stream_deck_config_subscriber import StreamDeckConfigSubscriber
 from network.stream_deck_publisher import StreamDeckPublisher
 from controller.stream_deck_controller import StreamDeckController
 from sim.sim_stream_deck import SimStreamDeckXL
+from status_window import StatusWindow
 
 ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
 
@@ -23,15 +24,21 @@ _running: bool = True
 use_sim_deck: bool = False
 use_sim_network: bool = False
 
+
+
+
 def exit_gracefully(*_):
     global _running  # pylint: disable=global-statement
     _running = False
 
-def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
+
+def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None, status_win: Optional[StatusWindow] = None):
     target_ip = c.SERVER_IPS[0 if not use_sim_network else 1]
     c.NT_INSTANCE.setServer(target_ip)
     c.NT_INSTANCE.startClient4("StreamDeck")
+
     controller = StreamDeckController()
+
     with StreamDeckConfigSubscriber(controller) as sub, StreamDeckPublisher(controller) as pub:
         try:
             sent_search_message = False
@@ -39,13 +46,15 @@ def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
                 if not sent_search_message:
                     print("Searching for Stream Deck...")
                     sent_search_message = True
-                
+
                 decks: list[StreamDeck.StreamDeck | SimStreamDeckXL] = (
                     DeviceManager().enumerate() if not use_sim_deck
                     else [SimStreamDeckXL(c.SIM_KEY_LAYOUT, tk_root)]
                 )
 
                 if not decks:
+                    if status_win:
+                        status_win.update_status(deck_connected=False, robot_connected=False)
                     pub.send_connected(False)
                     time.sleep(1)
                     continue
@@ -58,7 +67,7 @@ def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
                 deck = decks[0]
                 if not deck.is_visual():
                     continue
-                
+
                 controller.re_init(deck, sub.get_button_config_callables())
                 sub.re_init()
                 controller.re_init(deck, sub.get_button_config_callables())
@@ -75,6 +84,12 @@ def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
                         except TransportError:
                             pass
 
+                        # Pull communication state safely right from the NT connection layer
+                        robot_online = c.NT_INSTANCE.isConnected()
+                        
+                        if status_win:
+                            status_win.update_status(deck_connected=True, robot_connected=robot_online)
+
                         pub.send_heartbeat()
                         pub.update()
 
@@ -83,19 +98,19 @@ def main(running: Callable[[], bool], tk_root: Optional[tk.Tk] = None):
                         if d_time < c.MIN_LOOP_TIME_S:
                             time.sleep(c.MIN_LOOP_TIME_S - d_time)
                         last_time = new_time
-                
-                pub.send_connected(False)
+
+                    if status_win:
+                        status_win.update_status(deck_connected=False, robot_connected=False)
+                    pub.send_connected(False)
 
         finally:
-            # Stop NetworkTables clients
             print("Stopping NetworkTables clients...")
             try:
                 c.NT_INSTANCE.stopClient()
             except Exception as e:
                 print(f"Error stopping NT instance: {e}")
-        
-        
-        print("Cleanup complete.")
+            print("Cleanup complete.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -105,27 +120,35 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.sim or args.sim_deck:
-        use_sim_deck = True # simulate deck
+        use_sim_deck = True
     if args.sim or args.sim_code:
-        use_sim_network = True # simulated robot code expected
+        use_sim_network = True
 
     signal.signal(signal.SIGINT, exit_gracefully)
 
     if use_sim_deck:
-        # Tkinter owns the main thread; the old polling loop moves to a
-        # background thread that starts before the window loop takes over.
         root = tk.Tk()
+        def on_close():
+            exit_gracefully()
+            root.destroy()
+        root.protocol("WM_DELETE_WINDOW", on_close)
+
+        worker = threading.Thread(target=main, args=(lambda: _running, root, None), daemon=True)
+        worker.start()
+        root.mainloop()
+        _running = False
+
+    else:
+        root = tk.Tk()
+        status_app = StatusWindow(root)
 
         def on_close():
             exit_gracefully()
             root.destroy()
+        root.protocol("WM_DELETE_WINDOW", on_close)
 
-        root.protocol("WM_DELETE_WINDOW", on_close)  # closing the window stops everything cleanly
-
-        worker = threading.Thread(target=main, args=(lambda: _running, root), daemon=True)
+        worker = threading.Thread(target=main, args=(lambda: _running, None, status_app), daemon=True)
         worker.start()
-
-        root.mainloop()   # blocks here until the window closes
+        
+        root.mainloop()
         _running = False
-    else:
-        main(lambda: _running)
