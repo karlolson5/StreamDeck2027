@@ -1,6 +1,6 @@
 @echo off
 echo ===================================================
-echo 🚀 Building StreamDeck2027 Standalone Executable...
+echo Building StreamDeck2027 Standalone Executable...
 echo ===================================================
 
 :: 1. Run the optimal PyInstaller command
@@ -17,7 +17,7 @@ src/main.py
 if %ERRORLEVEL% EQU 0 (
     echo.
     echo ===================================================
-    echo 🧹 Cleaning up temporary build artifacts...
+    echo Cleaning up temporary build artifacts...
     echo ===================================================
     
     :: Remove the temporary build directory
