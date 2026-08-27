@@ -2,4 +2,4 @@ streamdeck
 pillow
 pyntcore
 matplotlib
-# cairosvg
+resvg-py

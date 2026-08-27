@@ -9,6 +9,7 @@ import constants as c
 import util.utilities as u
 from StreamDeck.ImageHelpers import PILHelper
 from PIL import Image, ImageDraw, ImageFont
+import resvg_py
 
 if TYPE_CHECKING:
     from controller.stream_deck_controller import StreamDeckController
@@ -110,12 +111,10 @@ class StreamDeckButton:
 
     def _create_key_image_from_svg(self, tx: str) -> Optional[Image.Image]:
         try:
-            raise NotImplementedError
-            # png_bytes = cairosvg.svg2png(bytestring=tx.encode('utf-8'))
-            # image = Image.open(io.BytesIO(png_bytes))
-            # return PILHelper.create_scaled_key_image(self.controller._deck, image)
-        except Exception:
-            print("The specified code does not form a valid svg")
+            return PILHelper.create_scaled_key_image(self.controller._deck,
+                Image.open(io.BytesIO(resvg_py.render_to_png(svg_string=tx))))
+        except Exception as e:
+            print(f"The specified code does not form a valid svg: {e}")
             return self._warning_image()
 
     def _create_key_image_from_asset(self, filename: str) -> Optional[Image.Image]:

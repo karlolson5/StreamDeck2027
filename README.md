@@ -3,8 +3,11 @@ Driver Station side code for using a Stream Deck XL as an FRC Robot Controller. 
 Build with
 ```bash
 pyinstaller --onefile --windowed --name="StreamDeck2027" \
---add-data "assets/fonts/;assets/fonts/" \
---add-data "assets/images/;assets/images/" \
---add-binary "assets/dlls/hidapi.dll;assets/dlls" \
+--collect-all resvg-py \
+--collect-submodules StreamDeck \
+--hidden-import ntcore \
+--add-data "assets/fonts;assets/fonts" \
+--add-data "assets/images;assets/images" \
+--add-binary "assets/dlls;assets/dlls" \
 src/main.py
 ```
