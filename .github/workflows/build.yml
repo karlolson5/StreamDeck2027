@@ -19,7 +19,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Set up Python Runtime
-      uses: actions/setup-python@v6 # UPGRADED: Fixes Node 20 deprecation warning
+      uses: actions/setup-python@v6
       with:
         python-version: '3.11'
         cache: 'pip'
@@ -34,27 +34,29 @@ jobs:
       shell: bash
       run: |
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          # Windows Compilation with Platform Name
+          # Windows Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
+          --paths=src \
           --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
           --add-data "assets/fonts;assets/fonts" \
           --add-data "assets/images;assets/images" \
           --add-binary "assets/dlls;assets/dlls" src/main.py
         elif [ "${{ matrix.os }}" = "macos-latest" ]; then
-          # Mac Compilation with Platform Name
+          # Mac Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
+          --paths=src \
           --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
           --add-data "assets/fonts:assets/fonts" \
           --add-data "assets/images:assets/images" src/main.py
         else
-          # Linux Compilation with Platform Name
+          # Linux Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
+          --paths=src \
           --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
           --add-data "assets/fonts:assets/fonts" \
           --add-data "assets/images:assets/images" src/main.py
         fi
 
-    # ARCHIVE STEP TO PRESERVE UNIX PERMISSIONS FOR MAC AND LINUX
     - name: Archive Unix Binaries
       shell: bash
       run: |
