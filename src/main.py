@@ -20,8 +20,10 @@ from app_state import AppState
 
 if sys.platform == "win32":
     ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
-else:
-    print(f"Running on {sys.platform}. Relying on system-installed libhidapi.")
+elif sys.platform == "darwin":
+    ctypes.CDLL(u.asset_path("dlls", "libhidapi.dylib"))
+elif sys.platform.startswith("linux"):
+    ctypes.CDLL(u.asset_path("dlls", "libhidapi-libusb.so.0"))
 
 _running: bool = True
 
@@ -56,11 +58,22 @@ def main(running: Callable[[], bool], app_state: AppState, status_win: Optional[
                     sent_search_message = True
 
                 sim_instance = app_state.sim_deck_instance
-                decks = [sim_instance] if sim_instance is not None else DeviceManager().enumerate()
+                if sim_instance is not None:
+                    decks = []
+                    hid_error = False
+                    decks = [sim_instance]
+                else:
+                    try:
+                        decks = DeviceManager().enumerate()
+                        hid_error = False
+                    except Exception as e:
+                        print(f"Error probing for Stream Decks: {e}")
+                        decks = []
+                        hid_error = True
 
                 if not decks:
                     if status_win:
-                        status_win.update_status(deck_connected=False, robot_connected=False)
+                        status_win.update_status(deck_connected=False, robot_connected=False, hid_error=hid_error)
                     pub.send_connected(False)
                     time.sleep(1)
                     continue

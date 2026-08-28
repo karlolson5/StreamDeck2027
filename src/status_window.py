@@ -17,6 +17,7 @@ class StatusWindow:
         self.root.resizable(False, False)
         self.last_deck_connected: Optional[bool] = None
         self.last_robot_connected: Optional[bool] = None
+        self.last_hid_error: Optional[bool] = None
         self._sim_window: Optional[tk.Toplevel] = None
 
         self.status_label = tk.Label(
@@ -68,16 +69,23 @@ class StatusWindow:
         sim_active = self.app_state.sim_deck_instance is not None
         self.sim_deck_button.config(state=tk.DISABLED if (deck_connected or sim_active) else tk.NORMAL)
 
-    def update_status(self, deck_connected: bool, robot_connected: bool):
+    def update_status(self, deck_connected: bool, robot_connected: bool, hid_error: bool = False):
         """Thread-safe update helper via Tkinter's .after loop."""
         if (deck_connected == self.last_deck_connected and
-            robot_connected == self.last_robot_connected):
+            robot_connected == self.last_robot_connected and
+            hid_error == self.last_hid_error):
             return
         self.last_robot_connected = robot_connected
         self.last_deck_connected = deck_connected
+        self.last_hid_error = hid_error
 
         def update():
-            if not deck_connected:
+            if hid_error:
+                self.status_label.config(
+                    text="⚠️ Can't access USB devices\nInstall hidapi to use a real Stream Deck",
+                    bg="#8A6D00", fg="red"
+                )
+            elif not deck_connected:
                 self.status_label.config(text="🔴 No Stream Deck Connected", bg="#7A1D1D", fg="white")
             elif deck_connected and not robot_connected:
                 self.status_label.config(text="🟡 Stream Deck Connected, No Robot", bg="#D4A373", fg="black")

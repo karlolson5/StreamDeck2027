@@ -49,6 +49,9 @@ jobs:
           --add-data "assets/images;assets/images" \
           --add-binary "assets/dlls;assets/dlls" src/main.py
         elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          brew install hidapi
+          mkdir -p assets/dlls
+          cp "$(brew --prefix hidapi)/lib/libhidapi.dylib" assets/dlls/
           # Mac Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
           --paths=src \
@@ -61,8 +64,12 @@ jobs:
           --hidden-import sim.sim_stream_deck \
           --hidden-import util.utilities \
           --add-data "assets/fonts:assets/fonts" \
-          --add-data "assets/images:assets/images" src/main.py
+          --add-data "assets/images:assets/images" \
+          --add-binary "assets/dlls/libhidapi.dylib:assets/dlls" src/main.py
         else
+          sudo apt-get update && sudo apt-get install -y libhidapi-libusb0
+          mkdir -p assets/dlls
+          cp /usr/lib/x86_64-linux-gnu/libhidapi-libusb.so.0 assets/dlls/
           # Linux Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
           --paths=src \
@@ -75,7 +82,8 @@ jobs:
           --hidden-import sim.sim_stream_deck \
           --hidden-import util.utilities \
           --add-data "assets/fonts:assets/fonts" \
-          --add-data "assets/images:assets/images" src/main.py
+          --add-data "assets/images:assets/images" \
+          --add-binary "assets/dlls/libhidapi-libusb.so.0:assets/dlls" src/main.py
         fi
 
     - name: Archive Unix Binaries
