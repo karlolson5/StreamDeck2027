@@ -25,7 +25,12 @@ class CustomizableGridApp:
         
         # Storage dictionary for button objects
         self.buttons: dict[int, tk.Button] = {}
-        
+        self._raw_images: dict[int, bytes] = {}
+        self._tk_images: dict[int, ImageTk.PhotoImage] = {}
+        # Nominal button size in pixels (e.g. 96x96), used as a fallback
+        # before a button has been drawn on screen for the first time.
+        self._key_size = key_size
+
         # Setup UI Frames
         self.setup_grid_panel(key_size, key_callbacks)
 
@@ -39,18 +44,20 @@ class CustomizableGridApp:
                 # Unique default text for every button
                 index = r * self.cols + c
                 
-                # Instantiate button widget with standard defaults
+                # Instantiate button widget with standard defaults.
                 btn = tk.Button(
-                    self.grid_frame, 
-                    text="", 
-                    width=key_size[0], 
-                    height=key_size[1],
+                    self.grid_frame,
+                    text="",
                     bg="black",
                     fg="white",
+                    bd=0,
+                    highlightthickness=0,
                 )
 
                 btn.bind("<ButtonPress-1>",lambda event, idx=index: key_callbacks(None, idx, True))
                 btn.bind("<ButtonRelease-1>",lambda event, idx=index: key_callbacks(None, idx, False))
+                # Whenever this button's on-screen size changes, re-render its image
+                btn.bind("<Configure>", lambda event, idx=index: self._on_button_resize(idx, event))
 
                 # Map standard layout placement metrics
                 btn.grid(row=r, column=c, padx=4, pady=4, sticky="nsew")
@@ -60,9 +67,13 @@ class CustomizableGridApp:
                 
         # Make the layout stretch responsively inside its parent container
         for r in range(self.rows):
-            self.grid_frame.rowconfigure(r, weight=1)
+            self.grid_frame.rowconfigure(r, weight=1, minsize=key_size[1])
         for c in range(self.cols):
-            self.grid_frame.columnconfigure(c, weight=1)
+            self.grid_frame.columnconfigure(c, weight=1, minsize=key_size[0])
+
+        total_w = self.cols * (key_size[0] + 8) + 20
+        total_h = self.rows * (key_size[1] + 8) + 20
+        self.root.geometry(f"{total_w}x{total_h}")
 
     def set_text(self, index: int, new_text: str):
         if index in self.buttons:
@@ -78,10 +89,35 @@ class CustomizableGridApp:
 
     def set_button_image(self, index: int, image: bytes):
         def _update():
-            img = PIL.ImageTk.PhotoImage(Image.open(io.BytesIO(image)))
-            self.buttons[index].config(image=img)
-            self.buttons[index].image = img  # keep a reference so it isn't garbage collected
+            # Remember the original bytes so we can re-render this image
+            # at a different size later if the button gets resized.
+            self._raw_images[index] = image
+
+            btn = self.buttons[index]
+            width, height = btn.winfo_width(), btn.winfo_height()
+            if width <= 1 or height <= 1:
+                width, height = self._key_size
+
+            self._render_image(index, image, (width, height))
         self.root.after(0, _update)
+
+    def _on_button_resize(self, index: int, event: tk.Event):
+        """Re-scales this button's cached image to match its new size."""
+        raw = self._raw_images.get(index)
+        if raw is None:
+            return
+        width, height = max(event.width, 1), max(event.height, 1)
+        self._render_image(index, raw, (width, height))
+
+    def _render_image(self, index: int, image: bytes, size: tuple[int, int]):
+        """Decodes `image` and draws it scaled to exactly fill `size`,
+        so it always matches the current button dimensions with no
+        leftover whitespace and no cropping."""
+        pil_image = Image.open(io.BytesIO(image)).convert("RGBA")
+        pil_image = pil_image.resize(size, Image.LANCZOS)
+        tk_image = ImageTk.PhotoImage(pil_image)
+        self.buttons[index].config(image=tk_image)
+        self._tk_images[index] = tk_image  # keep a reference so it isn't garbage collected
 
 class SimStreamDeck(CustomizableGridApp):
     def __init__(self, key_layout: tuple[int, int], tk_root: tk.Tk):
