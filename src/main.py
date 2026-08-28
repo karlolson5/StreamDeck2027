@@ -29,9 +29,6 @@ _running: bool = True
 use_sim_deck: bool = False
 use_sim_network: bool = False
 
-
-
-
 def exit_gracefully(*_):
     global _running  # pylint: disable=global-statement
     _running = False
