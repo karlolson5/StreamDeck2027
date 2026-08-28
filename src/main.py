@@ -1,6 +1,7 @@
 from __future__ import annotations
 import threading
 import sys
+import os
 import tkinter as tk
 import ctypes
 import argparse
@@ -21,9 +22,13 @@ from app_state import AppState
 if sys.platform == "win32":
     ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
 elif sys.platform == "darwin":
-    ctypes.CDLL(u.asset_path("dlls", "libhidapi.dylib"))
+    lib_dir = u.asset_path("dlls")
+    os.environ["DYLD_LIBRARY_PATH"] = lib_dir + os.pathsep + os.environ.get("DYLD_LIBRARY_PATH", "")
 elif sys.platform.startswith("linux"):
-    ctypes.CDLL(u.asset_path("dlls", "libhidapi-libusb.so.0"))
+    lib_dir = u.asset_path("dlls")
+    os.environ["LD_LIBRARY_PATH"] = lib_dir + os.pathsep + os.environ.get("LD_LIBRARY_PATH", "")
+else:
+    print(f"Running on {sys.platform}. Relying on system-installed libhidapi.")
 
 _running: bool = True
 
