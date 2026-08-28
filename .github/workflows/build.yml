@@ -30,7 +30,7 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-        - name: Build Standalone Application
+    - name: Build Standalone Application
       shell: bash
       run: |
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
