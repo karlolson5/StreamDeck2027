@@ -30,7 +30,7 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
 
-    - name: Build Standalone Application
+        - name: Build Standalone Application
       shell: bash
       run: |
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
@@ -38,6 +38,13 @@ jobs:
           pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
           --paths=src \
           --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
+          --hidden-import controller.stream_deck_controller \
+          --hidden-import controller.stream_deck_button \
+          --hidden-import network.stream_deck_config_subscriber \
+          --hidden-import network.stream_deck_publisher \
+          --hidden-import network.base.output_publisher \
+          --hidden-import sim.sim_stream_deck \
+          --hidden-import util.utilities \
           --add-data "assets/fonts;assets/fonts" \
           --add-data "assets/images;assets/images" \
           --add-binary "assets/dlls;assets/dlls" src/main.py
@@ -46,6 +53,13 @@ jobs:
           pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
           --paths=src \
           --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
+          --hidden-import controller.stream_deck_controller \
+          --hidden-import controller.stream_deck_button \
+          --hidden-import network.stream_deck_config_subscriber \
+          --hidden-import network.stream_deck_publisher \
+          --hidden-import network.base.output_publisher \
+          --hidden-import sim.sim_stream_deck \
+          --hidden-import util.utilities \
           --add-data "assets/fonts:assets/fonts" \
           --add-data "assets/images:assets/images" src/main.py
         else
@@ -53,6 +67,13 @@ jobs:
           pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
           --paths=src \
           --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
+          --hidden-import controller.stream_deck_controller \
+          --hidden-import controller.stream_deck_button \
+          --hidden-import network.stream_deck_config_subscriber \
+          --hidden-import network.stream_deck_publisher \
+          --hidden-import network.base.output_publisher \
+          --hidden-import sim.sim_stream_deck \
+          --hidden-import util.utilities \
           --add-data "assets/fonts:assets/fonts" \
           --add-data "assets/images:assets/images" src/main.py
         fi
