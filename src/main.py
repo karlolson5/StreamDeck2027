@@ -1,5 +1,6 @@
 from __future__ import annotations
 import threading
+import sys
 import tkinter as tk
 import ctypes
 import argparse
@@ -18,7 +19,11 @@ from controller.stream_deck_controller import StreamDeckController
 from sim.sim_stream_deck import SimStreamDeckXL
 from status_window import StatusWindow
 
-ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
+# Only load the static Windows DLL if we are actually on Windows
+if sys.platform == "win32":
+    ctypes.CDLL(u.asset_path("dlls", "hidapi.dll"))
+else:
+    print(f"Running on {sys.platform}. Relying on system-installed libhidapi.")
 
 _running: bool = True
 use_sim_deck: bool = False
