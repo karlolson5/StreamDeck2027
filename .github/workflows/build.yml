@@ -37,7 +37,7 @@ jobs:
           # Windows Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
           --paths=src \
-          --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
+          --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
@@ -52,7 +52,7 @@ jobs:
           # Mac Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
           --paths=src \
-          --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
+          --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
@@ -66,7 +66,7 @@ jobs:
           # Linux Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
           --paths=src \
-          --collect-all resvg-py --collect-submodules StreamDeck --hidden-import ntcore \
+          --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
