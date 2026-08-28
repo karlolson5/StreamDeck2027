@@ -7,7 +7,10 @@ import constants as c
 
 def resource_path(filename):
     try:
-        base_path = sys._MEIPASS
+        if getattr(sys, 'frozen', False):
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, filename)
