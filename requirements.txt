@@ -1,5 +1,4 @@
 streamdeck
 pillow
 pyntcore
-matplotlib
 resvg-py

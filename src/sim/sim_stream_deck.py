@@ -1,6 +1,12 @@
 from __future__ import annotations
 from collections.abc import Callable
-from typing import override
+import sys
+
+if sys.version_info >= (3, 12):
+    from typing import override
+else:
+    from typing_extensions import override
+
 import tkinter as tk
 import io
 import constants as c
