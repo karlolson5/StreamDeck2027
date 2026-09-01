@@ -25,6 +25,7 @@ class CustomizableGridApp:
         
         # Storage dictionary for button objects
         self.buttons: dict[int, tk.Button] = {}
+        self._held: dict[int, bool] = {}
         self._raw_images: dict[int, bytes] = {}
         self._tk_images: dict[int, ImageTk.PhotoImage] = {}
         # Nominal button size in pixels (e.g. 96x96), used as a fallback
@@ -54,9 +55,16 @@ class CustomizableGridApp:
                     highlightthickness=0,
                 )
 
-                btn.bind("<ButtonPress-1>",lambda event, idx=index: key_callbacks(None, idx, True))
-                btn.bind("<ButtonRelease-1>",lambda event, idx=index: key_callbacks(None, idx, False))
-                # Whenever this button's on-screen size changes, re-render its image
+                btn.bind("<ButtonPress-1>",   lambda event, idx=index: self._on_left_press(idx, key_callbacks))
+                btn.bind("<ButtonRelease-1>", lambda event, idx=index: self._on_left_release(idx, key_callbacks))
+
+                # Right-click: Button-3 covers Windows/Linux and most mice on Mac.
+                # Button-2 covers some Mac trackpad/mouse configs.
+                # Control-Button-1 covers Mac trackpads with no right-click button configured.
+                btn.bind("<Button-3>",           lambda event, idx=index: self._on_right_click(idx, key_callbacks))
+                btn.bind("<Button-2>",           lambda event, idx=index: self._on_right_click(idx, key_callbacks))
+                btn.bind("<Control-Button-1>",   lambda event, idx=index: self._on_right_click(idx, key_callbacks))
+
                 btn.bind("<Configure>", lambda event, idx=index: self._on_button_resize(idx, event))
 
                 # Map standard layout placement metrics
@@ -108,6 +116,28 @@ class CustomizableGridApp:
             return
         width, height = max(event.width, 1), max(event.height, 1)
         self._render_image(index, raw, (width, height))
+
+    def _on_left_press(self, index: int, key_callbacks: Callable[[int, bool], []]):
+        """Left-click press does nothing if the button is currently held via right-click."""
+        if self._held.get(index, False):
+            return
+        key_callbacks(None, index, True)
+
+    def _on_left_release(self, index: int, key_callbacks: Callable[[int, bool], []]):
+        """Left-click release also clears a right-click hold, if one is active."""
+        if self._held.get(index, False):
+            self._held[index] = False
+        key_callbacks(None, index, False)
+
+    def _on_right_click(self, index: int, key_callbacks: Callable[[int, bool], []]):
+        """Right-click toggles a button between held-down and released."""
+        is_held = self._held.get(index, False)
+        if is_held:
+            self._held[index] = False
+            key_callbacks(None, index, False)   # simulate release
+        else:
+            self._held[index] = True
+            key_callbacks(None, index, True)    # simulate press-and-hold
 
     def _render_image(self, index: int, image: bytes, size: tuple[int, int]):
         """Decodes `image` and draws it scaled to exactly fill `size`,
