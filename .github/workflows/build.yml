@@ -37,6 +37,7 @@ jobs:
           # Windows Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
           --paths=src \
+          --icon=assets/icons/app_icon.ico \
           --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
@@ -47,6 +48,7 @@ jobs:
           --hidden-import util.utilities \
           --add-data "assets/fonts;assets/fonts" \
           --add-data "assets/images;assets/images" \
+          --add-data "assets/icons;assets/icons" \
           --add-binary "assets/dlls;assets/dlls" src/main.py
         elif [ "${{ matrix.os }}" = "macos-latest" ]; then
           brew install hidapi
@@ -55,6 +57,7 @@ jobs:
           # Mac Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
           --paths=src \
+          --icon=assets/icons/app_icon.icns \
           --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
@@ -65,6 +68,7 @@ jobs:
           --hidden-import util.utilities \
           --add-data "assets/fonts:assets/fonts" \
           --add-data "assets/images:assets/images" \
+          --add-data "assets/icons:assets/icons" \
           --add-binary "assets/dlls/libhidapi.dylib:assets/dlls" src/main.py
         else
           sudo apt-get update && sudo apt-get install -y libhidapi-libusb0
@@ -83,6 +87,7 @@ jobs:
           --hidden-import util.utilities \
           --add-data "assets/fonts:assets/fonts" \
           --add-data "assets/images:assets/images" \
+          --add-data "assets/icons:assets/icons" \
           --add-binary "assets/dlls/libhidapi-libusb.so.0:assets/dlls" src/main.py
         fi
 

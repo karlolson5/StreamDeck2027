@@ -152,6 +152,8 @@ if __name__ == "__main__":
     app_state.set_target_simulated_robot(start_sim_robot)
 
     root = tk.Tk()
+    icon = tk.PhotoImage(file=u.asset_path("icons", "app_icon.png")) # not inline on next line to prevent garbage collection of the icon
+    root.iconphoto(True, icon)
     status_app = StatusWindow(
         root, app_state, lambda sim: set_nt_target(sim, app_state)
     )
