@@ -4,7 +4,7 @@ from typing import Optional, Callable
 import constants as c
 from app_state import AppState
 from sim.sim_stream_deck import SimStreamDeckXL
-
+from settings_dialog import SettingsDialog
 
 class StatusWindow:
     """Status display, plus live controls for simulated robot targeting and a simulated deck."""
@@ -40,6 +40,12 @@ class StatusWindow:
             command=self.start_simulated_deck
         )
         self.sim_deck_button.pack(anchor="w", pady=(5, 0))
+
+        tk.Button(
+            controls, text="Settings...",
+            command=self.open_settings
+        ).pack(anchor="w", pady=(5, 0))
+
 
     def _on_target_sim_toggle(self):
         target_simulated = self.target_sim_var.get()
@@ -94,3 +100,16 @@ class StatusWindow:
             self._refresh_button_state()
 
         self.root.after(0, update)
+
+    def open_settings(self):
+        SettingsDialog(
+            self.root,
+            self.app_state.robot_ip,
+            self.app_state.sim_ip,
+            on_save=self._on_settings_saved,
+        )
+
+    def _on_settings_saved(self, robot_ip: str, sim_ip: str):
+        self.app_state.set_network_ips(robot_ip, sim_ip)
+        # Reconnect immediately using the new IP, matching whichever target is active
+        self.set_nt_target(self.target_sim_var.get())

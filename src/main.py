@@ -38,9 +38,9 @@ def exit_gracefully(*_):
     _running = False
 
 
-def set_nt_target(target_simulated: bool):
+def set_nt_target(target_simulated: bool, app_state: AppState):
     """Point the NT client at the real robot or the simulated one, live."""
-    target_ip = c.SERVER_IPS[1 if target_simulated else 0]
+    target_ip = app_state.sim_ip if target_simulated else app_state.robot_ip
     try:
         c.NT_INSTANCE.stopClient()
     except Exception:
@@ -50,7 +50,7 @@ def set_nt_target(target_simulated: bool):
 
 
 def main(running: Callable[[], bool], app_state: AppState, status_win: Optional[StatusWindow] = None):
-    set_nt_target(app_state.target_simulated_robot)
+    set_nt_target(app_state.target_simulated_robot, app_state)
 
     controller = StreamDeckController()
 
@@ -152,7 +152,9 @@ if __name__ == "__main__":
     app_state.set_target_simulated_robot(start_sim_robot)
 
     root = tk.Tk()
-    status_app = StatusWindow(root, app_state, set_nt_target)
+    status_app = StatusWindow(
+        root, app_state, lambda sim: set_nt_target(sim, app_state)
+    )
 
     if start_sim_deck:
         status_app.start_simulated_deck()
