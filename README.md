@@ -4,7 +4,7 @@ Driver Station side code for using a Stream Deck XL as an FRC Robot Controller v
 ## Install
 On Windows, simply download StreamDeck2027-Windows.exe from the [latest release](https://github.com/karlolson5/StreamDeck2027/releases).
 
-On MacOS, download StreamDeck2027-Mac.tar.gz from the [latest release](https://github.com/karlolson5/StreamDeck2027/releases), then extract the file, then run `xattr -d com.apple.quarantine StreamDeck2027-Mac` in the folder containing the app, or right click, press Open, click Done when you get a security warning, then go to System Settings > Privacy & Security and find the notification and press Open Anyway. From then on, you can run it as normal.
+On MacOS, download StreamDeck2027-Mac.tar.gz from the [latest release](https://github.com/karlolson5/StreamDeck2027/releases), then extract the file, then run `xattr -d com.apple.quarantine StreamDeck2027-Mac.app` in the folder containing the app, or right click, press Open, click Done when you get a security warning, then go to System Settings > Privacy & Security and find the notification and press Open Anyway. From then on, you can run it as normal.
 
 On MacOS, download StreamDeck2027-Linux.tar.gz from the [latest release](https://github.com/karlolson5/StreamDeck2027/releases), then extract the file.
 
