@@ -91,7 +91,7 @@ jobs:
       run: |
         cd dist
         if [ "${{ matrix.os }}" = "macos-latest" ]; then
-          tar -czf StreamDeck2027-Mac.tar.gz StreamDeck2027-Mac
+          tar -czf StreamDeck2027-Mac.tar.gz StreamDeck2027-Mac.app
         elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
           tar -czf StreamDeck2027-Linux.tar.gz StreamDeck2027-Linux
         fi
