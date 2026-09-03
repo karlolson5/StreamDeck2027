@@ -33,12 +33,14 @@ jobs:
     - name: Build Standalone Application
       shell: bash
       run: |
+        NTCORE_COLLECT_FLAGS="--collect-all pyntcore --collect-all robotpy-native-ntcore --collect-all robotpy-native-wpinet --collect-all robotpy-native-wpiutil --collect-all robotpy-wpinet --collect-all robotpy-wpiutil"
+
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
           # Windows Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
           --paths=src \
           --icon=assets/icons/app_icon.ico \
-          --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
+          --collect-all resvg-py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
@@ -58,7 +60,7 @@ jobs:
           pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
           --paths=src \
           --icon=assets/icons/app_icon.icns \
-          --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
+          --collect-all resvg-py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
@@ -77,7 +79,7 @@ jobs:
           # Linux Compilation
           pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
           --paths=src \
-          --collect-all resvg-py --collect-submodules StreamDeck --collect-all ntcore \
+          --collect-all resvg-py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
