@@ -1,0 +1,114 @@
+name: Build and Attach Release Executable
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  build-multiplatform:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+
+    steps:
+    - name: Checkout Repository Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python Runtime
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+
+    - name: Build Standalone Application
+      shell: bash
+      run: |
+        NTCORE_COLLECT_FLAGS="--collect-all pyntcore --collect-all robotpy-native-ntcore --collect-all robotpy-native-wpinet --collect-all robotpy-native-wpiutil --collect-all robotpy-wpinet --collect-all robotpy-wpiutil"
+
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          # Windows Compilation
+          pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
+          --paths=src \
+          --icon=assets/icons/app_icon.ico \
+          --collect-all resvg-py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
+          --hidden-import controller.stream_deck_controller \
+          --hidden-import controller.stream_deck_button \
+          --hidden-import network.stream_deck_config_subscriber \
+          --hidden-import network.stream_deck_publisher \
+          --hidden-import network.base.output_publisher \
+          --hidden-import sim.sim_stream_deck \
+          --hidden-import util.utilities \
+          --add-data "assets/fonts;assets/fonts" \
+          --add-data "assets/images;assets/images" \
+          --add-data "assets/icons;assets/icons" \
+          --add-binary "assets/dlls;assets/dlls" src/main.py
+        elif [ "${{ matrix.os }}" = "macos-latest" ]; then
+          brew install hidapi
+          mkdir -p assets/dlls
+          cp "$(brew --prefix hidapi)/lib/libhidapi.dylib" assets/dlls/
+          # Mac Compilation
+          pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
+          --paths=src \
+          --icon=assets/icons/app_icon.icns \
+          --collect-all resvg-py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
+          --hidden-import controller.stream_deck_controller \
+          --hidden-import controller.stream_deck_button \
+          --hidden-import network.stream_deck_config_subscriber \
+          --hidden-import network.stream_deck_publisher \
+          --hidden-import network.base.output_publisher \
+          --hidden-import sim.sim_stream_deck \
+          --hidden-import util.utilities \
+          --add-data "assets/fonts:assets/fonts" \
+          --add-data "assets/images:assets/images" \
+          --add-data "assets/icons:assets/icons" \
+          --add-binary "assets/dlls/libhidapi.dylib:assets/dlls" src/main.py
+        else
+          sudo apt-get update && sudo apt-get install -y libhidapi-libusb0
+          mkdir -p assets/dlls
+          cp /usr/lib/x86_64-linux-gnu/libhidapi-libusb.so.0 assets/dlls/
+          # Linux Compilation
+          pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
+          --paths=src \
+          --collect-all resvg-py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
+          --hidden-import controller.stream_deck_controller \
+          --hidden-import controller.stream_deck_button \
+          --hidden-import network.stream_deck_config_subscriber \
+          --hidden-import network.stream_deck_publisher \
+          --hidden-import network.base.output_publisher \
+          --hidden-import sim.sim_stream_deck \
+          --hidden-import util.utilities \
+          --add-data "assets/fonts:assets/fonts" \
+          --add-data "assets/images:assets/images" \
+          --add-data "assets/icons:assets/icons" \
+          --add-binary "assets/dlls/libhidapi-libusb.so.0:assets/dlls" src/main.py
+        fi
+
+    - name: Archive Unix Binaries
+      shell: bash
+      run: |
+        cd dist
+        if [ "${{ matrix.os }}" = "macos-latest" ]; then
+          tar -czf StreamDeck2027-Mac.tar.gz StreamDeck2027-Mac.app
+        elif [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+          tar -czf StreamDeck2027-Linux.tar.gz StreamDeck2027-Linux
+        fi
+
+    - name: Upload Assets to GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        files: |
+          dist/StreamDeck2027-Windows.exe
+          dist/StreamDeck2027-Mac.tar.gz
+          dist/StreamDeck2027-Linux.tar.gz
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

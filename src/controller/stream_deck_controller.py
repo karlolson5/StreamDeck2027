@@ -164,7 +164,9 @@ class StreamDeckController:
                 self._deck.set_key_image(index, self._unconfigured_key_image)
 
     def on_key_change(self, _, key: int, selected: bool):
-        print(f"Button {key} {"pressed" if selected else "released"}")
+        state = "pressed" if selected else "released"
+        print(f"Button {key} {state}")
+        # print(f"Button {key} {"pressed" if selected else "released"}") # WARNING: THIS DOESN'T WORK FOR PYTHON<=3.11
         b = self.buttons.get(key)
         if b is None:
             print(f"Button {key} doesn't exist, publishing nothing")
