@@ -14,6 +14,9 @@ DEFAULT_ASSETS_PATH = os.path.join(os.path.dirname(__file__), "../assets")
 SERVER_IPS = ("10.34.76.2", "127.0.0.1") # Robot IP (10.TE.AM.2) , Sim IP (127.0.0.1)
 MIN_LOOP_TIME_S = 0.02
 
+RESERVED_BUTTON_KEYS = {"Appearance", "Active"}
+RESERVED_TOP_LEVEL_KEYS = {"Connected", "Heartbeat", "LastModified"}
+
 @dataclass
 class COLORS:
     CO_ORANGE = "#FF7A1C"

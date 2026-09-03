@@ -53,7 +53,7 @@ class StreamDeckButton:
         self.config_supplier: Callable[[], ButtonConfig] = config_supplier
         self.config: ButtonConfig = self.config_supplier()
         if self.config.key:
-            self.key = self.config.key
+            self.key = self._validate_key(self.config.key)
         self.active_supplier: Callable[[], bool] = active_supplier
         self.active: bool = self.active_supplier()
         self.publish_list: list[bool] = []
@@ -65,11 +65,17 @@ class StreamDeckButton:
         if new_active == self.active and new_config == self.config:
             return
         if new_config.key:
-            self.key = new_config.key
+            self.key = self._validate_key(new_config.key)
         self.active = new_active
         self.config = new_config
         self.render_key_image(self.create_key_image())
         return
+
+    def _validate_key(self, key: str) -> str:
+        if key in c.RESERVED_BUTTON_KEYS or key in c.RESERVED_TOP_LEVEL_KEYS:
+            print(f"ERROR: Button {self.index} attempted to use reserved key '{key}'; ignoring, keeping key '{self.key}'")
+            return self.key
+        return key
 
     def pressed(self):
         self.publish_list.append(True)
