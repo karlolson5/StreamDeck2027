@@ -118,7 +118,7 @@ class StreamDeckButton:
     def _create_key_image_from_svg(self, tx: str) -> Optional[Image.Image]:
         try:
             return PILHelper.create_scaled_key_image(self.controller._deck,
-                Image.open(io.BytesIO(resvg_py.render_to_png(svg_string=tx))))
+                Image.open(io.BytesIO(resvg_py.svg_to_bytes(svg_string=tx))))
         except Exception as e:
             print(f"The specified code does not form a valid svg: {e}")
             return self._warning_image()
