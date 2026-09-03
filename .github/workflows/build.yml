@@ -33,14 +33,14 @@ jobs:
     - name: Build Standalone Application
       shell: bash
       run: |
-        NTCORE_COLLECT_FLAGS="--collect-all ntcore --collect-all wpiutil --collect-all wpinet --collect-all native.ntcore --collect-all native.wpinet --collect-all native.wpiutil"
-
+        SEP=":"
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          # Windows Compilation
-          pyinstaller --onefile --windowed --name="StreamDeck2027-Windows" \
-          --paths=src \
-          --icon=assets/icons/app_icon.ico \
-          --hidden-import resvg_py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
+          SEP=";"
+        fi
+
+        COMMON_FLAGS="--hidden-import resvg_py --collect-submodules StreamDeck \
+          --collect-all ntcore --collect-all wpiutil --collect-all wpinet \
+          --collect-all native.ntcore --collect-all native.wpinet --collect-all native.wpiutil \
           --hidden-import controller.stream_deck_controller \
           --hidden-import controller.stream_deck_button \
           --hidden-import network.stream_deck_config_subscriber \
@@ -48,49 +48,36 @@ jobs:
           --hidden-import network.base.output_publisher \
           --hidden-import sim.sim_stream_deck \
           --hidden-import util.utilities \
-          --add-data "assets/fonts;assets/fonts" \
-          --add-data "assets/images;assets/images" \
-          --add-data "assets/icons;assets/icons" \
-          --add-binary "assets/dlls;assets/dlls" src/main.py
+          --add-data \"assets/fonts${SEP}assets/fonts\" \
+          --add-data \"assets/images${SEP}assets/images\" \
+          --add-data \"assets/icons${SEP}assets/icons\""
+
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          # Windows Compilation
+          eval pyinstaller --onefile --windowed --name=\"StreamDeck2027-Windows\" \
+          --paths=src \
+          --icon=assets/icons/app_icon.ico \
+          $COMMON_FLAGS \
+          --add-binary \"assets/dlls${SEP}assets/dlls\" src/main.py
         elif [ "${{ matrix.os }}" = "macos-latest" ]; then
           brew install hidapi
           mkdir -p assets/dlls
           cp "$(brew --prefix hidapi)/lib/libhidapi.dylib" assets/dlls/
           # Mac Compilation
-          pyinstaller --onefile --windowed --name="StreamDeck2027-Mac" \
+          eval pyinstaller --onefile --windowed --name=\"StreamDeck2027-Mac\" \
           --paths=src \
           --icon=assets/icons/app_icon.icns \
-          --hidden-import resvg_py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
-          --hidden-import controller.stream_deck_controller \
-          --hidden-import controller.stream_deck_button \
-          --hidden-import network.stream_deck_config_subscriber \
-          --hidden-import network.stream_deck_publisher \
-          --hidden-import network.base.output_publisher \
-          --hidden-import sim.sim_stream_deck \
-          --hidden-import util.utilities \
-          --add-data "assets/fonts:assets/fonts" \
-          --add-data "assets/images:assets/images" \
-          --add-data "assets/icons:assets/icons" \
-          --add-binary "assets/dlls/libhidapi.dylib:assets/dlls" src/main.py
+          $COMMON_FLAGS \
+          --add-binary \"assets/dlls/libhidapi.dylib${SEP}assets/dlls\" src/main.py
         else
           sudo apt-get update && sudo apt-get install -y libhidapi-libusb0
           mkdir -p assets/dlls
           cp /usr/lib/x86_64-linux-gnu/libhidapi-libusb.so.0 assets/dlls/
           # Linux Compilation
-          pyinstaller --onefile --windowed --name="StreamDeck2027-Linux" \
+          eval pyinstaller --onefile --windowed --name=\"StreamDeck2027-Linux\" \
           --paths=src \
-          --hidden-import resvg_py --collect-submodules StreamDeck $NTCORE_COLLECT_FLAGS \
-          --hidden-import controller.stream_deck_controller \
-          --hidden-import controller.stream_deck_button \
-          --hidden-import network.stream_deck_config_subscriber \
-          --hidden-import network.stream_deck_publisher \
-          --hidden-import network.base.output_publisher \
-          --hidden-import sim.sim_stream_deck \
-          --hidden-import util.utilities \
-          --add-data "assets/fonts:assets/fonts" \
-          --add-data "assets/images:assets/images" \
-          --add-data "assets/icons:assets/icons" \
-          --add-binary "assets/dlls/libhidapi-libusb.so.0:assets/dlls" src/main.py
+          $COMMON_FLAGS \
+          --add-binary \"assets/dlls/libhidapi-libusb.so.0${SEP}assets/dlls\" src/main.py
         fi
 
     - name: Archive Unix Binaries
