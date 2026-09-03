@@ -33,7 +33,7 @@ jobs:
     - name: Build Standalone Application
       shell: bash
       run: |
-        NTCORE_COLLECT_FLAGS="--collect-all pyntcore --collect-all robotpy-native-ntcore --collect-all robotpy-native-wpinet --collect-all robotpy-native-wpiutil --collect-all robotpy-wpinet --collect-all robotpy-wpiutil"
+        NTCORE_COLLECT_FLAGS="--collect-all pyntcore --collect-all robotpy-native-ntcore --collect-all robotpy-native-wpinet --collect-all robotpy-native-wpiutil --collect-all robotpy-wpinet --collect-all robotpy-wpiutil --collect-all msvc_runtime"
 
         if [ "${{ matrix.os }}" = "windows-latest" ]; then
           # Windows Compilation
